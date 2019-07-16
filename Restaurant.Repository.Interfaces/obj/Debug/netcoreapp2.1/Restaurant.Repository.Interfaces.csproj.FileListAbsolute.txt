@@ -1,0 +1,16 @@
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.deps.json
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.runtimeconfig.json
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.runtimeconfig.dev.json
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.dll
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.pdb
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Common.dll
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Entities.dll
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Entities.pdb
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\bin\Debug\netcoreapp2.1\Restaurant.Common.pdb
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.csproj.CoreCompileInputs.cache
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.AssemblyInfoInputs.cache
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.AssemblyInfo.cs
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.dll
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.pdb
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.csprojAssemblyReference.cache
+D:\Project\restaurant-projects\Restaurant.Api-Core2.1\Restaurant.API\Restaurant.Repository.Interfaces\obj\Debug\netcoreapp2.1\Restaurant.Repository.Interfaces.csproj.CopyComplete

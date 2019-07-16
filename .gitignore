@@ -1,0 +1,12 @@
+/Restaurant.API.sln
+/.vs
+/forwardzone
+/uploads
+/Restaurant.API/Program.cs
+/Restaurant.API/Restaurant.API.csproj
+/Restaurant.API/Restaurant.API.csproj.user
+/Restaurant.API/Startup.cs
+/Restaurant.API/appsettings.Development.json
+/Restaurant.API/appsettings.json
+/Restaurant.Entities
+/Restaurant.Common
