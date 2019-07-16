@@ -10,3 +10,13 @@
 /Restaurant.API/appsettings.json
 /Restaurant.Entities
 /Restaurant.Common
+/Restaurant.API/obj
+/Restaurant.API/bin
+/Restaurant.Business/bin
+/Restaurant.Business/obj
+/Restaurant.Business.Interfaces/obj
+/Restaurant.Business.Interfaces/bin
+/Restaurant.Repository/obj
+/Restaurant.Repository/bin
+/Restaurant.Repository.Interfaces/obj
+/Restaurant.Repository.Interfaces/bin
