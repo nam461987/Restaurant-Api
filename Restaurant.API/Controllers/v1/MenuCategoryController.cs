@@ -9,6 +9,7 @@ using Restaurant.Entities.Models;
 using Restaurant.Common.Constants;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Common.Dtos.MenuCategory;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,16 +32,16 @@ namespace Restaurant.API.Controllers.v1
         // GET: /menucategory
         [ClaimRequirement("", "category_menu_category_list")]
         [HttpGet]
-        public Task<IPaginatedList<MenuCategoryDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        public async Task<IPaginatedList<MenuCategoryDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
         {
-            return _menuCategoryBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
+            return await _menuCategoryBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
         }
         // GET: /menucategory/5
         [ClaimRequirement("", "category_menu_category_update")]
         [HttpGet("{id}")]
-        public Task<MenuCategoryDto> Get(int id)
+        public async Task<MenuCategoryDto> Get(int id)
         {
-            return _menuCategoryBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
+            return await _menuCategoryBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
         }
         // POST: /menucategory
         [ClaimRequirement("", "category_menu_category_create")]
@@ -73,9 +74,17 @@ namespace Restaurant.API.Controllers.v1
         // PUT: /menucategory/active
         [ClaimRequirement("", "category_menu_category_delete")]
         [HttpPut("active")]
-        public Task<bool> Put(int id, int Status)
+        public async Task<bool> Put(int id, int Status)
         {
-            return _menuCategoryBusiness.SetActive(id, Status);
+            return await _menuCategoryBusiness.SetActive(id, Status);
+        }
+        // GET: /menucategory/getall
+        [ClaimRequirement("", "category_menu_category_list")]
+        [Route("getall")]
+        [HttpGet]
+        public async Task<List<MenuCategory>> GetAllNotPaginate()
+        {
+            return await _menuCategoryBusiness.GetAllNotPaginate(_authenticationDto.RestaurantId, _authenticationDto.BranchId);
         }
     }
 }

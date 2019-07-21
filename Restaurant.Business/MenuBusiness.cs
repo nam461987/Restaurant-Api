@@ -8,6 +8,7 @@ using Restaurant.Common.Dtos.Menu;
 using Restaurant.Common.Enums;
 using Restaurant.Entities.Models;
 using Restaurant.Repository.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -75,33 +76,33 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<MenuDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
+        public async Task<IPaginatedList<MenuDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
         {
             var MenuRepo = _menuRepository.Repo;
 
-            var result = (from menu in MenuRepo
-                          join restaurant in _restaurantRepository.Repo on menu.RestaurantId equals restaurant.Id into rs
-                          from restaurant in rs.DefaultIfEmpty()
-                          join category in _menuCategoryRepository.Repo on menu.CategoryId equals category.Id into cs
-                          from category in cs.DefaultIfEmpty()
-                          join unit in _menuUnitRepository.Repo on menu.UnitId equals unit.Id into us
-                          from unit in us.DefaultIfEmpty()
-                          select new MenuDto
-                          {
-                              Id = menu.Id,
-                              RestaurantId = menu.RestaurantId,
-                              RestaurantIdName = restaurant.Name,
-                              BranchId = menu.BranchId,
-                              CategoryId=menu.CategoryId,
-                              CategoryIdName=category.Name,
-                              Name = menu.Name,
-                              Description = menu.Description,
-                              Image = menu.Image,
-                              Price = menu.Price,
-                              UnitId = menu.UnitId,
-                              UnitIdName = unit.Name,
-                              Status = menu.Status
-                          })
+            var result = await (from menu in MenuRepo
+                                join restaurant in _restaurantRepository.Repo on menu.RestaurantId equals restaurant.Id into rs
+                                from restaurant in rs.DefaultIfEmpty()
+                                join category in _menuCategoryRepository.Repo on menu.CategoryId equals category.Id into cs
+                                from category in cs.DefaultIfEmpty()
+                                join unit in _menuUnitRepository.Repo on menu.UnitId equals unit.Id into us
+                                from unit in us.DefaultIfEmpty()
+                                select new MenuDto
+                                {
+                                    Id = menu.Id,
+                                    RestaurantId = menu.RestaurantId,
+                                    RestaurantIdName = restaurant.Name,
+                                    BranchId = menu.BranchId,
+                                    CategoryId = menu.CategoryId,
+                                    CategoryIdName = category.Name,
+                                    Name = menu.Name,
+                                    Description = menu.Description,
+                                    Image = menu.Image,
+                                    Price = menu.Price,
+                                    UnitId = menu.UnitId,
+                                    UnitIdName = unit.Name,
+                                    Status = menu.Status
+                                })
                           .ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
                           .Where(c => c.Status < (int)EStatus.All)
                           .OrderBy(c => c.Id)
@@ -114,6 +115,14 @@ namespace Restaurant.Business
                 .FirstOrDefaultAsync();
 
             return _mapper.Map<MenuDto>(result);
+        }
+        public async Task<List<Menu>> GetAllNotPaginate(int restaurantId, int branchId)
+        {
+            var result = await _menuRepository.Repo.ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .ToListAsync();
+
+            return result;
         }
     }
 }

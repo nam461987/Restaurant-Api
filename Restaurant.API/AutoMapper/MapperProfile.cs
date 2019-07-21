@@ -10,6 +10,7 @@ using Restaurant.Common.Dtos.OrderChannel;
 using Restaurant.Common.Dtos.OrderChannelTime;
 using Restaurant.Common.Dtos.Restaurant;
 using Restaurant.Common.Dtos.RestaurantBranch;
+using Restaurant.Common.Dtos.RestaurantTable;
 using Restaurant.Entities.Models;
 
 namespace Restaurant.API.AutoMapper
@@ -50,6 +51,9 @@ namespace Restaurant.API.AutoMapper
 
             CreateMap<Entities.Models.Restaurant, RestaurantDto>();
             CreateMap<RestaurantDto, Entities.Models.Restaurant>();
+
+            CreateMap<RestaurantTable, RestaurantTableDto>();
+            CreateMap<RestaurantTableDto, RestaurantTable>();
         }
     }
 }

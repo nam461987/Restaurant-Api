@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Restaurant.Business.Interfaces;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Business.Paginated;
+using Restaurant.Common.Arrays;
 using Restaurant.Common.Dtos.Restaurant;
 using Restaurant.Common.Enums;
 using Restaurant.Repository.Interfaces;
@@ -89,6 +90,7 @@ namespace Restaurant.Business
                           {
                               Id = restaurant.Id,
                               TypeId = restaurant.TypeId,
+                              TypeIdName = ARestaurantType.RestaurantType[restaurant.TypeId],
                               Name = restaurant.Name,
                               Email = restaurant.Email,
                               StateId = restaurant.StateId,

@@ -12,6 +12,7 @@ using Restaurant.Entities.Models;
 using Restaurant.Common.Constants;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Common.Dtos.RestaurantBranch;
+using Restaurant.Common.Enums;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,36 +26,51 @@ namespace Restaurant.API.Controllers.v1
     {
         private readonly AuthenticationDto _authenticationDto;
         private readonly IRestaurantBranchBusiness _restaurantBranchBusiness;
+        private readonly IRestaurantBusiness _restaurantBusiness;
 
         public RestaurantBranchController(IHttpContextAccessor httpContextAccessor,
-            IRestaurantBranchBusiness restaurantBranchBusiness)
+            IRestaurantBranchBusiness restaurantBranchBusiness,
+            IRestaurantBusiness restaurantBusiness)
         {
             _authenticationDto = httpContextAccessor.HttpContext.User.ToAuthenticationDto();
             _restaurantBranchBusiness = restaurantBranchBusiness;
+            _restaurantBusiness = restaurantBusiness;
         }
         // GET: /restaurant
         [ClaimRequirement("", "category_restaurant_branch_list")]
         [HttpGet]
-        public Task<IPaginatedList<BranchDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        public async Task<IPaginatedList<BranchDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
         {
-            return _restaurantBranchBusiness.GetAll(_authenticationDto.RestaurantId, pageIndex, pageSize);
+            return await _restaurantBranchBusiness.GetAll(_authenticationDto.RestaurantId, pageIndex, pageSize);
         }
         // GET: /restaurant/5
         [ClaimRequirement("", "category_restaurant_branch_update")]
         [HttpGet("{id}")]
-        public Task<BranchDto> Get(int id)
+        public async Task<BranchDto> Get(int id)
         {
-            return _restaurantBranchBusiness.GetById(_authenticationDto.RestaurantId, id);
+            return await _restaurantBranchBusiness.GetById(_authenticationDto.RestaurantId, id);
         }
         // POST: /restaurant
         [ClaimRequirement("", "category_restaurant_branch_create")]
         [HttpPost]
         public async Task<int> Post(RestaurantBranch model)
         {
-
             var result = 0;
             if (ModelState.IsValid)
             {
+                //check Restaurant Type
+                var restaurant = await _restaurantBusiness.GetById(_authenticationDto.RestaurantId);
+                if (restaurant != null && restaurant.TypeId == (int)ERestaurantType.Online)
+                {
+                    //if Online Restaurant had 1 Branch before, can not add more
+                    // check count of Branch
+                    var branch = await _restaurantBranchBusiness.GetAll(_authenticationDto.RestaurantId, 0, 10);
+                    if (branch.TotalItems > 0)
+                    {
+                        return result;
+                    }
+                }
+
                 model.Status = 1;
                 var modelInsert = await _restaurantBranchBusiness.Add(model);
                 result = modelInsert.Id;
@@ -77,17 +93,17 @@ namespace Restaurant.API.Controllers.v1
         // PUT: /restaurant/active
         [ClaimRequirement("", "category_restaurant_branch_delete")]
         [HttpPut("active")]
-        public Task<bool> Put(int id, int Status)
+        public async Task<bool> Put(int id, int Status)
         {
-            return _restaurantBranchBusiness.SetActive(id, Status);
+            return await _restaurantBranchBusiness.SetActive(id, Status);
         }
 
         // DELETE: /restaurant/5
         [ClaimRequirement("", "category_restaurant_branch_delete")]
         [HttpDelete("{id}")]
-        public Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            var result = _restaurantBranchBusiness.Delete(id);
+            var result = await _restaurantBranchBusiness.Delete(id);
 
             return result;
         }

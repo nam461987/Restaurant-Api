@@ -9,6 +9,7 @@ using Restaurant.Entities.Models;
 using Restaurant.Common.Constants;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Common.Dtos.MenuSize;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,16 +32,16 @@ namespace Restaurant.API.Controllers.v1
         // GET: /restaurant
         [ClaimRequirement("", "category_menu_size_list")]
         [HttpGet]
-        public Task<IPaginatedList<MenuSizeDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        public async Task<IPaginatedList<MenuSizeDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
         {
-            return _menuSizeBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
+            return await _menuSizeBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
         }
         // GET: /restaurant/5
         [ClaimRequirement("", "category_menu_size_update")]
         [HttpGet("{id}")]
-        public Task<MenuSizeDto> Get(int id)
+        public async Task<MenuSizeDto> Get(int id)
         {
-            return _menuSizeBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
+            return await _menuSizeBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
         }
         // POST: /restaurant
         [ClaimRequirement("", "category_menu_size_create")]
@@ -73,9 +74,9 @@ namespace Restaurant.API.Controllers.v1
         // PUT: /restaurant/active
         [ClaimRequirement("", "category_menu_size_delete")]
         [HttpPut("active")]
-        public Task<bool> Put(int id, int Status)
+        public async Task<bool> Put(int id, int Status)
         {
-            return _menuSizeBusiness.SetActive(id, Status);
+            return await _menuSizeBusiness.SetActive(id, Status);
         }
     }
 }

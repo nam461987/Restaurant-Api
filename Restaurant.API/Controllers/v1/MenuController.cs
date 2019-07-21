@@ -9,6 +9,7 @@ using Restaurant.Entities.Models;
 using Restaurant.Common.Constants;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Common.Dtos.Menu;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,9 +32,9 @@ namespace Restaurant.API.Controllers.v1
         // GET: /Menu
         [ClaimRequirement("", "category_menu_list")]
         [HttpGet]
-        public Task<IPaginatedList<MenuDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        public async Task<IPaginatedList<MenuDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
         {
-            return _menuBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
+            return await _menuBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
         }
         // GET: /Menu/5
         [ClaimRequirement("", "category_menu_update")]
@@ -73,9 +74,17 @@ namespace Restaurant.API.Controllers.v1
         // PUT: /Menu/active
         [ClaimRequirement("", "category_menu_delete")]
         [HttpPut("active")]
-        public Task<bool> Put(int id, int Status)
+        public async Task<bool> Put(int id, int Status)
         {
-            return _menuBusiness.SetActive(id, Status);
+            return await _menuBusiness.SetActive(id, Status);
+        }
+        // GET: /Menu/getall
+        [ClaimRequirement("", "category_menu_list")]
+        [Route("getall")]
+        [HttpGet]
+        public async Task<List<Menu>> GetAllNotPaginate()
+        {
+            return await _menuBusiness.GetAllNotPaginate(_authenticationDto.RestaurantId, _authenticationDto.BranchId);
         }
     }
 }

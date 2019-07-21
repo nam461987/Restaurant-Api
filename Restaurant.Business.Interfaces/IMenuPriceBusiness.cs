@@ -14,6 +14,7 @@ namespace Restaurant.Business.Interfaces
         Task<IPaginatedList<MenuPriceDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize);
         Task<MenuPriceDto> GetById(int restaurantId, int branchId, int id);
         Task<IPaginatedList<MenuPriceDto>> GetByMenuId(int restaurantId, int branchId, int pageIndex, int pageSize, int menuId);
-        Task<MenuPrice> CheckExistPrice(MenuPrice model);
+        Task<MenuPrice> CheckExistPrice(MenuPrice model); 
+        Task<List<MenuPriceDto>> GetAllNotPaginate(int restaurantId, int branchId);
     }
 }

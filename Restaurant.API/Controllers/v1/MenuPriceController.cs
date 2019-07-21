@@ -10,6 +10,7 @@ using Restaurant.Common.Constants;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Common.Dtos.MenuPrice;
 using Restaurant.Common.Enums;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -39,9 +40,9 @@ namespace Restaurant.API.Controllers.v1
         // GET: /menuprice/5
         [ClaimRequirement("", "category_menu_price_update")]
         [HttpGet("{id}")]
-        public Task<MenuPriceDto> Get(int id)
+        public async Task<MenuPriceDto> Get(int id)
         {
-            return _menuPriceBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
+            return await _menuPriceBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
         }
         // GET: /menuprice/5
         [ClaimRequirement("", "category_menu_price_update")]
@@ -97,9 +98,17 @@ namespace Restaurant.API.Controllers.v1
         // PUT: /menuprice/active
         [ClaimRequirement("", "category_menu_price_delete")]
         [HttpPut("active")]
-        public Task<bool> Put(int id, int Status)
+        public async Task<bool> Put(int id, int Status)
         {
-            return _menuPriceBusiness.SetActive(id, Status);
+            return await _menuPriceBusiness.SetActive(id, Status);
+        }
+        // GET: /menuprice
+        [ClaimRequirement("", "category_menu_price_list")]
+        [Route("getall")]
+        [HttpGet]
+        public async Task<List<MenuPriceDto>> GetAllNotPaginate(int menuId, int sizeId)
+        {
+            return await _menuPriceBusiness.GetAllNotPaginate(_authenticationDto.RestaurantId, _authenticationDto.BranchId);
         }
     }
 }

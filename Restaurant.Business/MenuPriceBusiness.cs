@@ -142,10 +142,39 @@ namespace Restaurant.Business
         }
         public async Task<MenuPrice> CheckExistPrice(MenuPrice model)
         {
-            var record = await _menuPriceRepository.Repo.FirstOrDefaultAsync(c => c.RestaurantId == model.RestaurantId && c.MenuId== model.MenuId
+            var record = await _menuPriceRepository.Repo.FirstOrDefaultAsync(c => c.RestaurantId == model.RestaurantId && c.MenuId == model.MenuId
              && c.SizeId == model.SizeId);
 
             return record;
+        }
+        public async Task<List<MenuPriceDto>> GetAllNotPaginate(int restaurantId, int branchId)
+        {
+            var MenuPriceRepo = _menuPriceRepository.Repo;
+            var result = await (from menuPrice in MenuPriceRepo
+                                join restaurant in _restaurantRepository.Repo on menuPrice.RestaurantId equals restaurant.Id into rs
+                                from restaurant in rs.DefaultIfEmpty()
+                                join menu in _menuRepository.Repo on menuPrice.MenuId equals menu.Id into mn
+                                from menu in mn.DefaultIfEmpty()
+                                join size in _menuSizeRepository.Repo on menuPrice.SizeId equals size.Id into sz
+                                from size in sz.DefaultIfEmpty()
+                                select new MenuPriceDto
+                                {
+                                    Id = menuPrice.Id,
+                                    RestaurantId = menuPrice.RestaurantId,
+                                    RestaurantIdName = restaurant.Name,
+                                    BranchId = menuPrice.BranchId,
+                                    MenuId = menuPrice.MenuId,
+                                    MenuIdName = menu.Name,
+                                    SizeId = menuPrice.SizeId,
+                                    SizeIdName = size.Name,
+                                    Price = menuPrice.Price,
+                                    Status = menuPrice.Status,
+                                })
+                          .ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                          .Where(c => c.Status == (int)EStatus.Using)
+                          .OrderBy(c => c.Id)
+                          .ToListAsync();
+            return result;
         }
     }
 }
