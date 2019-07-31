@@ -17,5 +17,10 @@ namespace Restaurant.Business.Interfaces
         Task<List<OptionModel>> GetSizeOptions(int restaurantId, int branchId);
         Task<List<OptionModel>> GetStateOptions();
         Task<List<OptionModel>> GetCityOptions(int stateId);
+        Task<List<OptionModel>> GetCustomerOptions(int restaurantId, int branchId);
+        Task<List<OptionModel>> GetOrderChannelOptions(int restaurantId, int branchId);
+        Task<List<OptionModel>> GetTableOptions(int restaurantId, int branchId);
+        Task<List<OptionModel>> GetOrderProcessOptions();
+        Task<List<OptionModel>> GetAccountOptions(int restaurantId, int branchId);
     }
 }

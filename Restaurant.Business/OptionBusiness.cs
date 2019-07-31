@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Restaurant.Business.Filter;
 using Restaurant.Business.Interfaces;
 using Restaurant.Common.Enums;
 using Restaurant.Common.Models;
@@ -22,6 +23,11 @@ namespace Restaurant.Business
         private readonly IMenuSizeRepository _menuSizeRepository;
         private readonly IStateRepository _stateRepository;
         private readonly IStateCityRepository _stateCityRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IOrderChannelRepository _orderChannelRepository;
+        private readonly IRestaurantTableRepository _restaurantTableRepository;
+        private readonly IAdminAccountRepository _adminAccountRepository;
+        private readonly IOrderProcessRepository _orderProcessRepository;
         public OptionBusiness(IMapper mapper,
             IAdminGroupRepository adminGroupRepository,
             IRestaurantRepository restaurantRepository,
@@ -30,7 +36,12 @@ namespace Restaurant.Business
             IMenuUnitRepository menuUnitRepository,
             IMenuSizeRepository menuSizeRepository,
             IStateRepository stateRepository,
-            IStateCityRepository stateCityRepository)
+            IStateCityRepository stateCityRepository,
+            ICustomerRepository customerRepository,
+            IOrderChannelRepository orderChannelRepository,
+            IRestaurantTableRepository restaurantTableRepository,
+            IAdminAccountRepository adminAccountRepository,
+            IOrderProcessRepository orderProcessRepository)
         {
             _mapper = mapper;
             _adminGroupRepository = adminGroupRepository;
@@ -41,6 +52,11 @@ namespace Restaurant.Business
             _menuSizeRepository = menuSizeRepository;
             _stateRepository = stateRepository;
             _stateCityRepository = stateCityRepository;
+            _customerRepository = customerRepository;
+            _orderChannelRepository = orderChannelRepository;
+            _restaurantTableRepository = restaurantTableRepository;
+            _adminAccountRepository = adminAccountRepository;
+            _orderProcessRepository = orderProcessRepository;
         }
         public async Task<List<OptionModel>> GetAdminGroupOptions()
         {
@@ -193,7 +209,7 @@ namespace Restaurant.Business
             }
 
             return options;
-        }
+        }        
         public async Task<List<OptionModel>> GetCityOptions(int stateId)
         {
             var options = new List<OptionModel>();
@@ -214,6 +230,110 @@ namespace Restaurant.Business
                         Value = Convert.ToInt32(c.Id)
                     }).ToList());
                 }
+            }
+
+            return options;
+        }        
+        public async Task<List<OptionModel>> GetCustomerOptions(int restaurantId, int branchId)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _customerRepository.Repo
+                .ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetOrderChannelOptions(int restaurantId, int branchId)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _orderChannelRepository.Repo
+                .ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Id)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetTableOptions(int restaurantId, int branchId)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _restaurantTableRepository.Repo
+                .ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetOrderProcessOptions()
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _orderProcessRepository.Repo
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetAccountOptions(int restaurantId, int branchId)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _adminAccountRepository.Repo
+                .ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.UserName)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.UserName),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
             }
 
             return options;

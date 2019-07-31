@@ -103,7 +103,7 @@ namespace Restaurant.API.Controllers.v1
             return await _menuPriceBusiness.SetActive(id, Status);
         }
         // GET: /menuprice
-        [ClaimRequirement("", "category_menu_price_list")]
+        [ClaimRequirement("", "quick_order_page")]
         [Route("getall")]
         [HttpGet]
         public async Task<List<MenuPriceDto>> GetAllNotPaginate(int menuId, int sizeId)

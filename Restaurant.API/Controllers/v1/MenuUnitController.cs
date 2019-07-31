@@ -31,16 +31,16 @@ namespace Restaurant.API.Controllers.v1
         // GET: /MenuUnit
         [ClaimRequirement("", "category_menu_unit_list")]
         [HttpGet]
-        public Task<IPaginatedList<MenuUnitDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        public async Task<IPaginatedList<MenuUnitDto>> Get(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
         {
-            return _menuUnitBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
+            return await _menuUnitBusiness.GetAll(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
         }
         // GET: /MenuUnit/5
         [ClaimRequirement("", "category_menu_unit_update")]
         [HttpGet("{id}")]
-        public Task<MenuUnitDto> Get(int id)
+        public async Task<MenuUnitDto> Get(int id)
         {
-            return _menuUnitBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
+            return await _menuUnitBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
         }
         // POST: /MenuUnit
         [ClaimRequirement("", "category_menu_unit_create")]
@@ -73,9 +73,9 @@ namespace Restaurant.API.Controllers.v1
         // PUT: /MenuUnit/active
         [ClaimRequirement("", "category_menu_unit_delete")]
         [HttpPut("active")]
-        public Task<bool> Put(int id, int Status)
+        public async Task<bool> Put(int id, int Status)
         {
-            return _menuUnitBusiness.SetActive(id, Status);
+            return await _menuUnitBusiness.SetActive(id, Status);
         }
     }
 }

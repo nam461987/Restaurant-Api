@@ -9,6 +9,7 @@ using Restaurant.Entities.Models;
 using Restaurant.Common.Constants;
 using Restaurant.Business.Interfaces.Paginated;
 using Restaurant.Common.Dtos.OrderChannel;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -76,6 +77,14 @@ namespace Restaurant.API.Controllers.v1
         public Task<bool> Put(int id, int Status)
         {
             return _orderChannelBusiness.SetActive(id, Status);
+        }
+        // GET: /OrderChannel/getall
+        [ClaimRequirement("", "quick_order_page")]
+        [Route("getall")]
+        [HttpGet]
+        public async Task<List<OrderChannel>> GetAllNotPaginate()
+        {
+            return await _orderChannelBusiness.GetAllNotPaginate(_authenticationDto.RestaurantId, _authenticationDto.BranchId);
         }
     }
 }

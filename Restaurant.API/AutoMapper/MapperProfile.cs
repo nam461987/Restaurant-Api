@@ -8,6 +8,8 @@ using Restaurant.Common.Dtos.MenuSize;
 using Restaurant.Common.Dtos.MenuUnit;
 using Restaurant.Common.Dtos.OrderChannel;
 using Restaurant.Common.Dtos.OrderChannelTime;
+using Restaurant.Common.Dtos.PlacedOrder;
+using Restaurant.Common.Dtos.PlacedOrderDetail;
 using Restaurant.Common.Dtos.Restaurant;
 using Restaurant.Common.Dtos.RestaurantBranch;
 using Restaurant.Common.Dtos.RestaurantTable;
@@ -54,6 +56,12 @@ namespace Restaurant.API.AutoMapper
 
             CreateMap<RestaurantTable, RestaurantTableDto>();
             CreateMap<RestaurantTableDto, RestaurantTable>();
+
+            CreateMap<PlacedOrder, PlacedOrderDto>();
+            CreateMap<PlacedOrderDto, PlacedOrder>();
+
+            CreateMap<PlacedOrderDetail, PlacedOrderDetailDto>();
+            CreateMap<PlacedOrderDetailDto, PlacedOrderDetail>();
         }
     }
 }

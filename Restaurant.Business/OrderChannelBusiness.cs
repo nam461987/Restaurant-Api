@@ -8,6 +8,7 @@ using Restaurant.Common.Dtos.OrderChannel;
 using Restaurant.Common.Enums;
 using Restaurant.Entities.Models;
 using Restaurant.Repository.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -100,6 +101,14 @@ namespace Restaurant.Business
                 .FirstOrDefaultAsync();
 
             return _mapper.Map<OrderChannelDto>(result);
+        }
+        public async Task<List<OrderChannel>> GetAllNotPaginate(int restaurantId, int branchId)
+        {
+            var result = await _orderChannelRepository.Repo.ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .ToListAsync();
+
+            return result;
         }
     }
 }

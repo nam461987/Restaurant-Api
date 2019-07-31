@@ -8,6 +8,7 @@ using Restaurant.Common.Dtos.RestaurantTable;
 using Restaurant.Common.Enums;
 using Restaurant.Entities.Models;
 using Restaurant.Repository.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,13 +19,16 @@ namespace Restaurant.Business
         private readonly IMapper _mapper;
         private readonly IRestaurantTableRepository _restaurantTableRepository;
         private readonly IRestaurantRepository _restaurantRepository;
+        private readonly IRestaurantBranchRepository _restaurantBranchRepository;
         public RestaurantTableBusiness(IMapper mapper,
             IRestaurantTableRepository restaurantTableRepository,
-            IRestaurantRepository restaurantRepository)
+            IRestaurantRepository restaurantRepository,
+            IRestaurantBranchRepository restaurantBranchRepository)
         {
             _mapper = mapper;
             _restaurantTableRepository = restaurantTableRepository;
             _restaurantRepository = restaurantRepository;
+            _restaurantBranchRepository = restaurantBranchRepository;
         }
         public async Task<RestaurantTable> Add(RestaurantTable model)
         {
@@ -74,12 +78,15 @@ namespace Restaurant.Business
             var result = (from restaurantTable in RestaurantTableRepo
                           join restaurant in _restaurantRepository.Repo on restaurantTable.RestaurantId equals restaurant.Id into rs
                           from restaurant in rs.DefaultIfEmpty()
+                          join branch in _restaurantBranchRepository.Repo on restaurantTable.BranchId equals branch.Id into bs
+                          from branch in bs.DefaultIfEmpty()
                           select new RestaurantTableDto
                           {
                               Id = restaurantTable.Id,
                               RestaurantId = restaurantTable.RestaurantId,
                               RestaurantIdName = restaurant.Name,
                               BranchId = restaurantTable.BranchId,
+                              BranchIdName = branch.Name,
                               Name = restaurantTable.Name,
                               Capacity = restaurantTable.Capacity,
                               Location = restaurantTable.Location,
@@ -98,6 +105,14 @@ namespace Restaurant.Business
                 .FirstOrDefaultAsync();
 
             return _mapper.Map<RestaurantTableDto>(result);
+        }
+        public async Task<List<RestaurantTable>> GetAllNotPaginate(int restaurantId, int branchId)
+        {
+            var result = await _restaurantTableRepository.Repo.ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .ToListAsync();
+
+            return result;
         }
     }
 }
