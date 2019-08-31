@@ -66,6 +66,7 @@ namespace Restaurant.Business
             entity.Code = $"OD-{dateStr}{resStr}{braStr}{(totalOrderToday + 1):D5}";
             await _placedOrderRepository.SaveChangeAsync();
             model.Id = entity.Id;
+            model.Code = entity.Code;
 
             return model;
         }
@@ -82,17 +83,25 @@ namespace Restaurant.Business
                 record.TableId = model.TableId;
                 record.PeopleNum = model.PeopleNum;
                 record.CustomerName = model.CustomerName;
+                record.CustomerPhone = model.CustomerPhone;
                 record.OrderTime = model.OrderTime;
                 record.DeliveryTime = model.DeliveryTime;
                 record.DeliveryAddress = model.DeliveryAddress;
                 record.Tax = model.Tax;
-                record.Price = model.Price;
                 record.DiscountType = model.DiscountType;
                 record.Discount = model.Discount;
-                record.FinalPrice = model.FinalPrice;
                 record.Description = model.Description;
                 record.UpdatedStaffId = model.UpdatedStaffId;
                 record.UpdatedDate = DateTime.Now;
+
+                if (record.DiscountType == (int)EDiscountType.Percent)
+                {
+                    record.FinalPrice = record.Price + record.Tax - ((record.Price * record.Discount) / 100);
+                }
+                else if (record.DiscountType == (int)EDiscountType.Money)
+                {
+                    record.FinalPrice = record.Price + record.Tax - record.Discount;
+                }
 
                 await _placedOrderRepository.SaveChangeAsync();
 
@@ -148,6 +157,9 @@ namespace Restaurant.Business
                               OrderTypeIdName = AOrderType.OrderType[placedOrder.OrderTypeId.GetValueOrDefault()],
                               CustomerId = placedOrder.CustomerId,
                               CustomerIdName = customer.Name,
+                              CustomerIdAddress = customer.Address,
+                              CustomerIdEmail = customer.Email,
+                              CustomerIdPhone = customer.Phone,
                               OrderChannelId = placedOrder.OrderChannelId,
                               OrderChannelIdName = orderChannel.Name,
                               TableId = placedOrder.TableId,
@@ -158,6 +170,7 @@ namespace Restaurant.Business
                               OrderProcessIdColor = process.Color,
                               PeopleNum = placedOrder.PeopleNum.GetValueOrDefault(),
                               CustomerName = placedOrder.CustomerName,
+                              CustomerPhone = placedOrder.CustomerPhone,
                               OrderTime = placedOrder.OrderTime,
                               DeliveryTime = placedOrder.DeliveryTime,
                               DeliveryAddress = placedOrder.DeliveryAddress,
@@ -251,6 +264,9 @@ namespace Restaurant.Business
                               OrderTypeIdName = AOrderType.OrderType[placedOrder.OrderTypeId.GetValueOrDefault()],
                               CustomerId = placedOrder.CustomerId,
                               CustomerIdName = customer.Name,
+                              CustomerIdAddress = customer.Address,
+                              CustomerIdEmail = customer.Email,
+                              CustomerIdPhone = customer.Phone,
                               OrderChannelId = placedOrder.OrderChannelId,
                               OrderChannelIdName = orderChannel.Name,
                               TableId = placedOrder.TableId,
@@ -261,6 +277,7 @@ namespace Restaurant.Business
                               OrderProcessIdColor = process.Color,
                               PeopleNum = placedOrder.PeopleNum.GetValueOrDefault(),
                               CustomerName = placedOrder.CustomerName,
+                              CustomerPhone = placedOrder.CustomerPhone,
                               OrderTime = placedOrder.OrderTime,
                               DeliveryTime = placedOrder.DeliveryTime,
                               DeliveryAddress = placedOrder.DeliveryAddress,

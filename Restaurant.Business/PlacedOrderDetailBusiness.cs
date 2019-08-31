@@ -39,9 +39,32 @@ namespace Restaurant.Business
         public async Task<PlacedOrderDetail> Add(PlacedOrderDetail model)
         {
             var entity = _placedOrderDetailRepository.Add(model);
-            await _placedOrderDetailRepository.SaveChangeAsync();
 
-            return model;
+            var totalDetailPrice = await GetTotalDetailPriceByOrderId(entity.RestaurantId, entity.BranchId, entity.PlacedOrderId);
+
+            var placedOrder = await _placedOrderRepository.Repo.ToFilterByRole(f => f.RestaurantId,
+            f => f.BranchId, entity.RestaurantId, entity.BranchId).Where(c => c.Id == entity.PlacedOrderId)
+            .FirstOrDefaultAsync();
+
+            if (placedOrder != null)
+            {
+                placedOrder.Price = (entity.MenuPrice * entity.Quantity) + totalDetailPrice;
+                if (placedOrder.DiscountType == (int)EDiscountType.Percent)
+                {
+                    placedOrder.FinalPrice = placedOrder.Price + placedOrder.Tax - ((placedOrder.Price * placedOrder.Discount) / 100);
+                }
+                else if (placedOrder.DiscountType == (int)EDiscountType.Money)
+                {
+                    placedOrder.FinalPrice = placedOrder.Price + placedOrder.Tax - placedOrder.Discount;
+                }
+
+                await _placedOrderDetailRepository.SaveChangeAsync();
+
+                return entity;
+            }
+
+
+            return null;
         }
         public async Task<bool> Update(PlacedOrderDetail model)
         {
@@ -59,9 +82,29 @@ namespace Restaurant.Business
                 record.IsFinish = model.IsFinish;
                 record.Description = model.Description;
 
-                await _placedOrderDetailRepository.SaveChangeAsync();
+                var totalDetailPrice = await GetTotalDetailPriceByOrderId(record.RestaurantId, record.BranchId, record.PlacedOrderId);
 
-                result = true;
+                var placedOrder = await _placedOrderRepository.Repo.ToFilterByRole(f => f.RestaurantId,
+                f => f.BranchId, record.RestaurantId, record.BranchId).Where(c => c.Id == record.PlacedOrderId)
+                .FirstOrDefaultAsync();
+
+                if (placedOrder != null)
+                {
+                    placedOrder.Price = (record.MenuPrice * record.Quantity) + totalDetailPrice;
+
+                    if (placedOrder.DiscountType == (int)EDiscountType.Percent)
+                    {
+                        placedOrder.FinalPrice = placedOrder.Price + placedOrder.Tax - ((placedOrder.Price * placedOrder.Discount) / 100);
+                    }
+                    else if (placedOrder.DiscountType == (int)EDiscountType.Money)
+                    {
+                        placedOrder.FinalPrice = placedOrder.Price + placedOrder.Tax - placedOrder.Discount;
+                    }
+
+                    await _placedOrderDetailRepository.SaveChangeAsync();
+
+                    result = true;
+                }
             }
             return result;
         }
@@ -72,8 +115,38 @@ namespace Restaurant.Business
             if (record != null)
             {
                 record.Status = Active == 1 ? 0 : 1;
-                await _placedOrderDetailRepository.SaveChangeAsync();
-                result = true;
+
+                var totalDetailPrice = await GetTotalDetailPriceByOrderId(record.RestaurantId, record.BranchId, record.PlacedOrderId);
+
+                var placedOrder = await _placedOrderRepository.Repo.ToFilterByRole(f => f.RestaurantId,
+                f => f.BranchId, record.RestaurantId, record.BranchId).Where(c => c.Id == record.PlacedOrderId)
+                .FirstOrDefaultAsync();
+
+                if (placedOrder != null)
+                {
+                    if (record.Status == (int)EStatus.Using)
+                    {
+                        placedOrder.Price = (record.MenuPrice * record.Quantity) + totalDetailPrice;
+                    }
+                    else
+                    {
+                        placedOrder.Price = totalDetailPrice - (record.MenuPrice * record.Quantity);
+                    }
+
+                    if (placedOrder.DiscountType == (int)EDiscountType.Percent)
+                    {
+                        placedOrder.FinalPrice = placedOrder.Price + placedOrder.Tax - ((placedOrder.Price * placedOrder.Discount) / 100);
+                    }
+                    else if (placedOrder.DiscountType == (int)EDiscountType.Money)
+                    {
+                        placedOrder.FinalPrice = placedOrder.Price + placedOrder.Tax - placedOrder.Discount;
+                    }
+
+                    await _placedOrderDetailRepository.SaveChangeAsync();
+
+                    result = true;
+                }
+
             }
             return result;
         }
@@ -81,36 +154,37 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<PlacedOrderDetailDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
+        public async Task<IPaginatedList<PlacedOrderDetailDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
         {
             var PlacedOrderDetailRepo = _placedOrderDetailRepository.Repo;
 
-            var result = (from placedOrderDetail in PlacedOrderDetailRepo
-                          join order in _placedOrderRepository.Repo on placedOrderDetail.PlacedOrderId equals order.Id into os
-                          from order in os.DefaultIfEmpty()
-                          join menu in _menuRepository.Repo on placedOrderDetail.MenuId equals menu.Id into ms
-                          from menu in ms.DefaultIfEmpty()
-                          join size in _menuSizeRepository.Repo on placedOrderDetail.SizeId equals size.Id into ss
-                          from size in ss.DefaultIfEmpty()
-                          select new PlacedOrderDetailDto
-                          {
-                              Id = placedOrderDetail.Id,
-                              RestaurantId = placedOrderDetail.RestaurantId,
-                              BranchId = placedOrderDetail.BranchId,
-                              PlacedOrderId = placedOrderDetail.PlacedOrderId,
-                              PlacedOrderIdCode = order.Code,
-                              OfferId = placedOrderDetail.OfferId,
-                              MenuId = placedOrderDetail.MenuId,
-                              MenuIdName = menu.Name,
-                              SizeId = placedOrderDetail.SizeId,
-                              SizeIdName = size.Name,
-                              Quantity = placedOrderDetail.Quantity,
-                              MenuPrice = placedOrderDetail.MenuPrice,
-                              Price = placedOrderDetail.Price,
-                              IsFinish = placedOrderDetail.IsFinish,
-                              Description = placedOrderDetail.Description,
-                              Status = placedOrderDetail.Status
-                          })
+            var result = await (from placedOrderDetail in PlacedOrderDetailRepo
+                                join order in _placedOrderRepository.Repo on placedOrderDetail.PlacedOrderId equals order.Id into os
+                                from order in os.DefaultIfEmpty()
+                                join menu in _menuRepository.Repo on placedOrderDetail.MenuId equals menu.Id into ms
+                                from menu in ms.DefaultIfEmpty()
+                                join size in _menuSizeRepository.Repo on placedOrderDetail.SizeId equals size.Id into ss
+                                from size in ss.DefaultIfEmpty()
+                                select new PlacedOrderDetailDto
+                                {
+                                    Id = placedOrderDetail.Id,
+                                    RestaurantId = placedOrderDetail.RestaurantId,
+                                    BranchId = placedOrderDetail.BranchId,
+                                    PlacedOrderId = placedOrderDetail.PlacedOrderId,
+                                    PlacedOrderIdCode = order.Code,
+                                    OfferId = placedOrderDetail.OfferId,
+                                    MenuId = placedOrderDetail.MenuId,
+                                    MenuIdName = menu.Name,
+                                    MenuIdImage = menu.Image,
+                                    SizeId = placedOrderDetail.SizeId,
+                                    SizeIdName = size.Name,
+                                    Quantity = placedOrderDetail.Quantity,
+                                    MenuPrice = placedOrderDetail.MenuPrice,
+                                    Price = placedOrderDetail.Price,
+                                    IsFinish = placedOrderDetail.IsFinish,
+                                    Description = placedOrderDetail.Description,
+                                    Status = placedOrderDetail.Status
+                                })
                           .ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
                           .Where(c => c.Status < (int)EStatus.All)
                           .OrderBy(c => c.Id)
@@ -124,7 +198,7 @@ namespace Restaurant.Business
 
             return _mapper.Map<PlacedOrderDetailDto>(result);
         }
-        public async Task<double> GetTotalDetailPriceByOrderId(int restaurantId, int branchId, int orderId)
+        private async Task<double> GetTotalDetailPriceByOrderId(int restaurantId, int branchId, int orderId)
         {
             double total = 0;
             var result = await _placedOrderDetailRepository.Repo.ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
@@ -141,37 +215,38 @@ namespace Restaurant.Business
 
             return total;
         }
-        public Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetail(int restaurantId, int branchId)
+        public async Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetail(int restaurantId, int branchId)
         {
             var PlacedOrderDetailRepo = _placedOrderDetailRepository.Repo;
 
-            var result = (from placedOrderDetail in PlacedOrderDetailRepo
-                          join order in _placedOrderRepository.Repo on placedOrderDetail.PlacedOrderId equals order.Id into os
-                          from order in os.DefaultIfEmpty()
-                          join menu in _menuRepository.Repo on placedOrderDetail.MenuId equals menu.Id into ms
-                          from menu in ms.DefaultIfEmpty()
-                          join size in _menuSizeRepository.Repo on placedOrderDetail.SizeId equals size.Id into ss
-                          from size in ss.DefaultIfEmpty()
-                          select new PlacedOrderDetailDto
-                          {
-                              Id = placedOrderDetail.Id,
-                              RestaurantId = placedOrderDetail.RestaurantId,
-                              BranchId = placedOrderDetail.BranchId,
-                              PlacedOrderId = placedOrderDetail.PlacedOrderId,
-                              PlacedOrderIdCode = order.Code,
-                              PlacedOrderIdOrderProcessId = order.OrderProcessId.GetValueOrDefault(),
-                              OfferId = placedOrderDetail.OfferId,
-                              MenuId = placedOrderDetail.MenuId,
-                              MenuIdName = menu.Name,
-                              SizeId = placedOrderDetail.SizeId,
-                              SizeIdName = size.Name,
-                              Quantity = placedOrderDetail.Quantity,
-                              MenuPrice = placedOrderDetail.MenuPrice,
-                              Price = placedOrderDetail.Price,
-                              IsFinish = placedOrderDetail.IsFinish,
-                              Description = placedOrderDetail.Description,
-                              Status = placedOrderDetail.Status
-                          })
+            var result = await (from placedOrderDetail in PlacedOrderDetailRepo
+                                join order in _placedOrderRepository.Repo on placedOrderDetail.PlacedOrderId equals order.Id into os
+                                from order in os.DefaultIfEmpty()
+                                join menu in _menuRepository.Repo on placedOrderDetail.MenuId equals menu.Id into ms
+                                from menu in ms.DefaultIfEmpty()
+                                join size in _menuSizeRepository.Repo on placedOrderDetail.SizeId equals size.Id into ss
+                                from size in ss.DefaultIfEmpty()
+                                select new PlacedOrderDetailDto
+                                {
+                                    Id = placedOrderDetail.Id,
+                                    RestaurantId = placedOrderDetail.RestaurantId,
+                                    BranchId = placedOrderDetail.BranchId,
+                                    PlacedOrderId = placedOrderDetail.PlacedOrderId,
+                                    PlacedOrderIdCode = order.Code,
+                                    PlacedOrderIdOrderProcessId = order.OrderProcessId.GetValueOrDefault(),
+                                    OfferId = placedOrderDetail.OfferId,
+                                    MenuId = placedOrderDetail.MenuId,
+                                    MenuIdName = menu.Name,
+                                    MenuIdImage = menu.Image,
+                                    SizeId = placedOrderDetail.SizeId,
+                                    SizeIdName = size.Name,
+                                    Quantity = placedOrderDetail.Quantity,
+                                    MenuPrice = placedOrderDetail.MenuPrice,
+                                    Price = placedOrderDetail.Price,
+                                    IsFinish = placedOrderDetail.IsFinish,
+                                    Description = placedOrderDetail.Description,
+                                    Status = placedOrderDetail.Status
+                                })
                           .ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
                           .Where(c => c.Status < (int)EStatus.All && (c.PlacedOrderIdOrderProcessId == (int)EOrderProcess.WaitingOrder ||
                           c.PlacedOrderIdOrderProcessId == (int)EOrderProcess.PreparingOrder ||
@@ -180,7 +255,7 @@ namespace Restaurant.Business
                           .ToListAsync();
             return result;
         }
-        public async Task<PlacedOrderDetail> SetFinishOrderDetail(int restaurantId, int branchId,int id, int isFinish)
+        public async Task<PlacedOrderDetail> SetFinishOrderDetail(int restaurantId, int branchId, int id, int isFinish)
         {
             var record = await _placedOrderDetailRepository.Repo
                 .ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
@@ -188,9 +263,47 @@ namespace Restaurant.Business
             if (record != null)
             {
                 record.IsFinish = isFinish == 1 ? 0 : 1;
-                await _placedOrderDetailRepository.SaveChangeAsync();                
+                await _placedOrderDetailRepository.SaveChangeAsync();
             }
             return record;
+        }
+        public async Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetailByOrderId(int restaurantId, int branchId, int orderId)
+        {
+            var PlacedOrderDetailRepo = _placedOrderDetailRepository.Repo;
+
+            var result = await (from placedOrderDetail in PlacedOrderDetailRepo
+                                join order in _placedOrderRepository.Repo on placedOrderDetail.PlacedOrderId equals order.Id into os
+                                from order in os.DefaultIfEmpty()
+                                join menu in _menuRepository.Repo on placedOrderDetail.MenuId equals menu.Id into ms
+                                from menu in ms.DefaultIfEmpty()
+                                join size in _menuSizeRepository.Repo on placedOrderDetail.SizeId equals size.Id into ss
+                                from size in ss.DefaultIfEmpty()
+                                select new PlacedOrderDetailDto
+                                {
+                                    Id = placedOrderDetail.Id,
+                                    RestaurantId = placedOrderDetail.RestaurantId,
+                                    BranchId = placedOrderDetail.BranchId,
+                                    PlacedOrderId = placedOrderDetail.PlacedOrderId,
+                                    PlacedOrderIdCode = order.Code,
+                                    PlacedOrderIdOrderProcessId = order.OrderProcessId.GetValueOrDefault(),
+                                    OfferId = placedOrderDetail.OfferId,
+                                    MenuId = placedOrderDetail.MenuId,
+                                    MenuIdName = menu.Name,
+                                    MenuIdImage = menu.Image,
+                                    SizeId = placedOrderDetail.SizeId,
+                                    SizeIdName = size.Name,
+                                    Quantity = placedOrderDetail.Quantity,
+                                    MenuPrice = placedOrderDetail.MenuPrice,
+                                    Price = placedOrderDetail.Price,
+                                    IsFinish = placedOrderDetail.IsFinish,
+                                    Description = placedOrderDetail.Description,
+                                    Status = placedOrderDetail.Status
+                                })
+                          .ToFilterByRole(f => f.RestaurantId, f => f.BranchId, restaurantId, branchId)
+                          .Where(c => c.Status < (int)EStatus.All && c.PlacedOrderId == orderId)
+                          .OrderBy(c => c.Id)
+                          .ToListAsync();
+            return result;
         }
     }
 }

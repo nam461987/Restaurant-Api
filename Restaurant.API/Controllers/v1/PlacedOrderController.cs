@@ -51,9 +51,9 @@ namespace Restaurant.API.Controllers.v1
         // POST: /PlacedOrder
         [ClaimRequirement("", "placed_order_create")]
         [HttpPost]
-        public async Task<int> Post(PlacedOrder model)
+        public async Task<PlacedOrder> Post(PlacedOrder model)
         {
-            var result = 0;
+            PlacedOrder result = null;
 
             //if current user is Restaurant Admin, don't let them create order
             // because when update price will be wrong
@@ -65,6 +65,18 @@ namespace Restaurant.API.Controllers.v1
 
             if (ModelState.IsValid)
             {
+                if (model.Tax == null)
+                {
+                    model.Tax = 0;
+                }
+                if (model.DiscountType == null)
+                {
+                    model.DiscountType = (int)EDiscountType.Money;
+                }
+                if (model.Discount == null)
+                {
+                    model.Discount = 0;
+                }
                 model.RestaurantId = _authenticationDto.RestaurantId;
                 model.BranchId = _authenticationDto.BranchId;
                 model.OrderTime = DateTime.Now;
@@ -72,11 +84,11 @@ namespace Restaurant.API.Controllers.v1
                 model.CreatedStaffId = _authenticationDto.UserId;
                 model.Status = 1;
                 var modelInsert = await _placedOrderBusiness.Add(model);
-                result = modelInsert.Id;
+                result = modelInsert;
 
                 // add order process as a record
                 // Waiting Order Status
-                if (result > 0)
+                if (result != null)
                 {
                     var processStatus = new PlacedOrderProcessStatus()
                     {
@@ -89,13 +101,6 @@ namespace Restaurant.API.Controllers.v1
                         CreatedDate = DateTime.Now
                     };
                     var lastProcessStatus = await _placedOrderProcessStatusBusiness.Add(processStatus);
-
-                    // get the last Process status and update to the order
-                    if (lastProcessStatus != null)
-                    {
-                        modelInsert.OrderProcessId = lastProcessStatus.OrderProcessId;
-                        await _placedOrderBusiness.UpdateOrderProcess(modelInsert);
-                    }
                 }
             }
             return result;
@@ -157,13 +162,11 @@ namespace Restaurant.API.Controllers.v1
             };
             var lastProcessStatus = await _placedOrderProcessStatusBusiness.Add(processStatus);
 
-            // get the last Process status and update to the order
             if (lastProcessStatus != null)
             {
-                model.OrderProcessId = lastProcessStatus.OrderProcessId;
-                await _placedOrderBusiness.UpdateOrderProcess(model);
                 result = true;
             }
+
             return result;
         }
         // GET: /PlacedOrder
@@ -191,18 +194,44 @@ namespace Restaurant.API.Controllers.v1
                 };
                 var lastProcessStatus = await _placedOrderProcessStatusBusiness.Add(processStatus);
 
-                // get the last Process status and update to the order
                 if (lastProcessStatus != null)
                 {
-                    var model = new PlacedOrder()
-                    {
-                        Id = id,
-                        OrderProcessId = lastProcessStatus.OrderProcessId
-                    };
-                    await _placedOrderBusiness.UpdateOrderProcess(model);
                     result = true;
                 }
             }
+            return result;
+        }
+        // GET: /PlacedOrder
+        [ClaimRequirement("", "placed_order_update")]
+        [Route("setcancelorder")]
+        [HttpPut]
+        public async Task<bool> SetCancelOrder(int id)
+        {
+            var result = false;
+
+            var checkProcessStatusExist = await _placedOrderProcessStatusBusiness.CheckProcessStatusExist(_authenticationDto.RestaurantId,
+                    _authenticationDto.BranchId, id, (int)EOrderProcess.CanceledOrder);
+
+            if (!checkProcessStatusExist)
+            {
+                var processStatus = new PlacedOrderProcessStatus()
+                {
+                    RestaurantId = _authenticationDto.RestaurantId,
+                    BranchId = _authenticationDto.BranchId,
+                    PlacedOrderId = id,
+                    OrderProcessId = (int)EOrderProcess.CanceledOrder,
+                    Status = 1,
+                    CreatedStaffId = _authenticationDto.UserId,
+                    CreatedDate = DateTime.Now
+                };
+                var lastProcessStatus = await _placedOrderProcessStatusBusiness.Add(processStatus);
+
+                if (lastProcessStatus != null)
+                {
+                    result = true;
+                }
+            }
+
             return result;
         }
     }

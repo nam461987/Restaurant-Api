@@ -69,11 +69,11 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<OrderChannelDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
+        public async Task<IPaginatedList<OrderChannelDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
         {
             var OrderChannelRepo = _orderChannelRepository.Repo;
 
-            var result = (from orderChannel in OrderChannelRepo
+            var result = await (from orderChannel in OrderChannelRepo
                           join restaurant in _restaurantRepository.Repo on orderChannel.RestaurantId equals restaurant.Id into rs
                           from restaurant in rs.DefaultIfEmpty()
                           select new OrderChannelDto

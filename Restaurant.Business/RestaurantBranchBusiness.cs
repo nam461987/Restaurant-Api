@@ -82,11 +82,11 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<BranchDto>> GetAll(int restaurantId, int pageIndex, int pageSize)
+        public async Task<IPaginatedList<BranchDto>> GetAll(int restaurantId, int pageIndex, int pageSize)
         {
             var restaurantBranchRepo = _restaurantBranchRepository.Repo;
 
-            var result = (from restaurantBranch in restaurantBranchRepo
+            var result = await (from restaurantBranch in restaurantBranchRepo
                           join restaurant in _restaurantRepository.Repo on restaurantBranch.RestaurantId equals restaurant.Id into rs
                           from restaurant in rs.DefaultIfEmpty()
                           join state in _stateRepository.Repo on restaurantBranch.StateId equals state.Id into ss
@@ -119,10 +119,38 @@ namespace Restaurant.Business
         }
         public async Task<BranchDto> GetById(int restaurantId, int id)
         {
-            var result = await _restaurantBranchRepository.Repo.ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0).Where(c => c.Id == id)
-                .FirstOrDefaultAsync();
+            var restaurantBranchRepo = _restaurantBranchRepository.Repo;
 
-            return _mapper.Map<BranchDto>(result);
+            var result = await (from restaurantBranch in restaurantBranchRepo
+                                join restaurant in _restaurantRepository.Repo on restaurantBranch.RestaurantId equals restaurant.Id into rs
+                                from restaurant in rs.DefaultIfEmpty()
+                                join state in _stateRepository.Repo on restaurantBranch.StateId equals state.Id into ss
+                                from state in ss.DefaultIfEmpty()
+                                join city in _stateCityRepository.Repo on restaurantBranch.CityId equals city.Id into cs
+                                from city in cs.DefaultIfEmpty()
+                                select new BranchDto
+                                {
+                                    Id = restaurantBranch.Id,
+                                    RestaurantId = restaurantBranch.RestaurantId,
+                                    RestaurantIdName = restaurant.Name,
+                                    Name = restaurantBranch.Name,
+                                    StateId = restaurantBranch.StateId,
+                                    StateIdName = state.Name,
+                                    CityId = restaurantBranch.CityId,
+                                    CityIdName = city.Name,
+                                    Zip = restaurantBranch.Zip,
+                                    Address = restaurantBranch.Address,
+                                    Phone = restaurantBranch.Phone,
+                                    OpenTime = restaurantBranch.OpenTime,
+                                    CloseTime = restaurantBranch.CloseTime,
+                                    AllDay = restaurantBranch.AllDay,
+                                    Status = restaurantBranch.Status,
+                                })
+                          .ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                          .Where(c => c.Id == id)
+                          .OrderBy(c => c.Id)
+                          .FirstOrDefaultAsync();
+            return result;
         }
     }
 }

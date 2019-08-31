@@ -81,20 +81,20 @@ namespace Restaurant.API.Controllers.v1
                 var modelInsert = await _placedOrderDetailBusiness.Add(model);
                 result = modelInsert.Id;
 
-                if (result > 0)
-                {
-                    //get total price from order details
-                    var totalDetailPrice = await _placedOrderDetailBusiness.GetTotalDetailPriceByOrderId
-                        (model.RestaurantId, model.BranchId, model.PlacedOrderId);
+                //if (result > 0)
+                //{
+                //    //get total price from order details
+                //    var totalDetailPrice = await _placedOrderDetailBusiness.GetTotalDetailPriceByOrderId
+                //        (model.RestaurantId, model.BranchId, model.PlacedOrderId);
 
-                    // get and update order price by newest order details price
-                    var order = await _placedOrderBusiness.GetById(model.RestaurantId, model.BranchId, model.PlacedOrderId);
-                    if (order != null)
-                    {
-                        order.Price = totalDetailPrice;
-                        await _placedOrderBusiness.UpdatePriceToPlacedOrder(_mapper.Map<PlacedOrder>(order));
-                    }
-                }
+                //    // get and update order price by newest order details price
+                //    var order = await _placedOrderBusiness.GetById(model.RestaurantId, model.BranchId, model.PlacedOrderId);
+                //    if (order != null)
+                //    {
+                //        order.Price = totalDetailPrice;
+                //        await _placedOrderBusiness.UpdatePriceToPlacedOrder(_mapper.Map<PlacedOrder>(order));
+                //    }
+                //}
             }
             return result;
         }
@@ -116,19 +116,19 @@ namespace Restaurant.API.Controllers.v1
             {
                 result = await _placedOrderDetailBusiness.Update(model);
 
-                if (result)
-                {
-                    //get total price from order details
-                    var totalDetailPrice = await _placedOrderDetailBusiness.GetTotalDetailPriceByOrderId
-                    (_authenticationDto.RestaurantId, _authenticationDto.BranchId, model.PlacedOrderId);
+                //if (result)
+                //{
+                //    //get total price from order details
+                //    var totalDetailPrice = await _placedOrderDetailBusiness.GetTotalDetailPriceByOrderId
+                //    (_authenticationDto.RestaurantId, _authenticationDto.BranchId, model.PlacedOrderId);
 
-                    // get and update order price by newest order details price
-                    var order = await _placedOrderBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, model.PlacedOrderId);
-                    if (order != null)
-                    {
-                        order.Price = totalDetailPrice;
-                    }
-                }
+                //    // get and update order price by newest order details price
+                //    var order = await _placedOrderBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, model.PlacedOrderId);
+                //    if (order != null)
+                //    {
+                //        order.Price = totalDetailPrice;
+                //    }
+                //}
             }
             return result;
         }
@@ -150,22 +150,22 @@ namespace Restaurant.API.Controllers.v1
 
             result = await _placedOrderDetailBusiness.SetActive(id, Status);
 
-            if (result)
-            {
-                //get order detail need to delete
-                var orderDetail = await _placedOrderDetailBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
+            //if (result)
+            //{
+            //    //get order detail need to delete
+            //    var orderDetail = await _placedOrderDetailBusiness.GetById(_authenticationDto.RestaurantId, _authenticationDto.BranchId, id);
 
-                //get total price from order details
-                var totalDetailPrice = await _placedOrderDetailBusiness.GetTotalDetailPriceByOrderId
-                    (orderDetail.RestaurantId, orderDetail.BranchId, orderDetail.PlacedOrderId);
+            //    //get total price from order details
+            //    var totalDetailPrice = await _placedOrderDetailBusiness.GetTotalDetailPriceByOrderId
+            //        (orderDetail.RestaurantId, orderDetail.BranchId, orderDetail.PlacedOrderId);
 
-                // get and update order price by newest order details price
-                var order = await _placedOrderBusiness.GetById(orderDetail.RestaurantId, orderDetail.BranchId, orderDetail.PlacedOrderId);
-                if (order != null)
-                {
-                    order.Price = totalDetailPrice;
-                }
-            }
+            //    // get and update order price by newest order details price
+            //    var order = await _placedOrderBusiness.GetById(orderDetail.RestaurantId, orderDetail.BranchId, orderDetail.PlacedOrderId);
+            //    if (order != null)
+            //    {
+            //        order.Price = totalDetailPrice;
+            //    }
+            //}
 
             return result;
         }
@@ -210,23 +210,19 @@ namespace Restaurant.API.Controllers.v1
                         CreatedDate = DateTime.Now
                     };
                     var lastProcessStatus = await _placedOrderProcessStatusBusiness.Add(processStatus);
-
-
-                    // get the last Process status and update to the order
-                    if (lastProcessStatus != null)
-                    {
-                        // set the order process to preparing
-                        var order = await _placedOrderBusiness.GetById(result.RestaurantId, result.BranchId, result.PlacedOrderId);
-                        if (order != null)
-                        {
-                            order.OrderProcessId = lastProcessStatus.OrderProcessId;
-                            await _placedOrderBusiness.UpdateOrderProcess(_mapper.Map<PlacedOrder>(order));
-                        }
-                    }
+                    
                 }
             }
 
             return result;
+        }
+        // GET: /PlacedOrder
+        [ClaimRequirement("", "placed_order_detail_list")]
+        [Route("getorderdetailbyorderid")]
+        [HttpGet]
+        public async Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetailByOrderId(int orderId)
+        {
+            return await _placedOrderDetailBusiness.GetWaitingOrderDetailByOrderId(_authenticationDto.RestaurantId, _authenticationDto.BranchId, orderId);
         }
     }
 }

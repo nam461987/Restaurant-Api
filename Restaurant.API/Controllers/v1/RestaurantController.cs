@@ -83,7 +83,7 @@ namespace Restaurant.API.Controllers.v1
 
                     if (accountInsert.Id > 0)
                     {
-                        await _emailBusiness.SendEmailToActiveAccount(accountInsert, user, password, activeUrl);
+                        await _emailBusiness.SendEmailToRestaurantAdmin(accountInsert, user, password, activeUrl);
                     }
                 }
             }

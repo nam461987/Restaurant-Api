@@ -20,3 +20,7 @@
 /Restaurant.Repository/bin
 /Restaurant.Repository.Interfaces/obj
 /Restaurant.Repository.Interfaces/bin
+/Restaurant.Business/AdminPermissionBusiness.cs
+/Restaurant.Business/AdminAccountBusiness.cs
+/Restaurant.Business/AdminGroupBusiness.cs
+/Restaurant.Business/AdminGroupPermissionBusiness.cs

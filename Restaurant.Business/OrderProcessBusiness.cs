@@ -60,10 +60,10 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<OrderProcess>> GetAll(int pageIndex, int pageSize)
+        public async Task<IPaginatedList<OrderProcess>> GetAll(int pageIndex, int pageSize)
         {
 
-            var result = _menuUnitRepository.Repo
+            var result = await _menuUnitRepository.Repo
                           .Where(c => c.Status < (int)EStatus.All)
                           .OrderBy(c => c.Id)
                           .ToPaginatedListAsync(pageIndex, pageSize);

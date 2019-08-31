@@ -10,5 +10,6 @@ namespace Restaurant.Business.Interfaces
     public interface IEmailBusiness
     {
         Task<bool> SendEmailToActiveAccount(AdminAccount model, string user, string password, string activeUrl);
+        Task<bool> SendEmailToRestaurantAdmin(AdminAccount model, string user, string password, string activeUrl); 
     }
 }

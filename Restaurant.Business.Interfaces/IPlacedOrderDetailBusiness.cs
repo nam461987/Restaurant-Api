@@ -13,8 +13,8 @@ namespace Restaurant.Business.Interfaces
         Task<bool> SetActive(int id, int Active);
         Task<IPaginatedList<PlacedOrderDetailDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize);
         Task<PlacedOrderDetailDto> GetById(int restaurantId, int branchId, int id);
-        Task<double> GetTotalDetailPriceByOrderId(int restaurantId, int branchId, int orderId);
         Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetail(int restaurantId, int branchId);
         Task<PlacedOrderDetail> SetFinishOrderDetail(int restaurantId, int branchId, int id, int isFinish);
+        Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetailByOrderId(int restaurantId, int branchId, int orderId);
     }
 }

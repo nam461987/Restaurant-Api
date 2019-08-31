@@ -64,11 +64,11 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<MenuSizeDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
+        public async Task<IPaginatedList<MenuSizeDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
         {
             var MenuSizeRepo = _menuSizeRepository.Repo;
 
-            var result = (from menuSize in MenuSizeRepo
+            var result = await (from menuSize in MenuSizeRepo
                           join restaurant in _restaurantRepository.Repo on menuSize.RestaurantId equals restaurant.Id into rs
                           from restaurant in rs.DefaultIfEmpty()
                           select new MenuSizeDto

@@ -24,6 +24,63 @@ namespace Restaurant.Business
             _mapper = mapper;
             _protector = provider.CreateProtector("Test");
         }
+        public async Task<bool> SendEmailToRestaurantAdmin(AdminAccount model, string user, string password, string activeUrl)
+        {
+            var result = false;
+            var accountPassword = model.UserName + "123";
+
+            var tokenToActive = new AuthenticationDto
+            {
+                UserId = model.Id,
+                RestaurantId = model.RestaurantId,
+                BranchId = model.BranchId,
+                TypeId = model.TypeId.GetValueOrDefault(),
+                Username = model.UserName,
+                CreatedTime = DateTime.Now
+            };
+            var activeToken = _protector.Protect(JsonConvert.SerializeObject(tokenToActive));
+
+            try
+            {
+                // add from,to mailaddresses
+                MailAddress from = new MailAddress(user, "Vangie House");
+                MailAddress to = new MailAddress(model.Email, model.FullName.Length > 0 ? model.FullName : model.UserName);
+                MailMessage myMail = new MailMessage(from, to);
+
+                // add ReplyTo
+                //MailAddress replyto = new MailAddress("reply@example.com");
+                //myMail.ReplyToList.Add(replyto);
+
+                // set subject and encoding
+                myMail.Subject = "Your account was created";
+                myMail.SubjectEncoding = Encoding.UTF8;
+
+                // set body-message and encoding
+                myMail.Body = string.Format("<body style='margin: 0; '><div style='background:#f7f9fa; display:flex; align-items:center;'><table width='100%' align='center' border='0'><tbody><tr><td align='center'><table border='0' align='center' width='650' style='text-align:center;border-spacing:0px;font-family:Arial; background:#fff;'><tbody><tr><td><table border='0' align='center' width='100%' style='border-spacing:0px; table-layout:fixed; border-collapse:collapse;'><tbody><tr style='border-bottom:1px solid #e7e7e7;'><td align='left' style='background:#fff; padding:20px 0 20px 50px;width:50%'></td><td align='right' style='width:50%; padding-right:50px;'><h3>Account Activation</h3></td></tr><tr style='border-bottom:1px solid #e7e7e7;'><td style='padding:0;' colspan='2'><table border='0' align='center' width='100%' style='border-spacing:0px; padding: 0 50px;'><tbody><tr><td colspan='3' align='center'><p style='color:#2196f3;font-size:24px;margin:0; margin-bottom:10px; margin-top:30px;'>Your register was successful</p></td></tr><tr><td colspan='3' align='left' style='font-size:14px; line-height:20px;'><p>Dear {0},</p><p>Welcome to <span style='color:#2196f3;'>Vangie House</span>!</p><p> Thanks for registering with us. To start using out application, you need to active your account first, just enter <a href='{1}{2}' style='color:#2196f3; text-decoration:none;'>Active</a>.</p><p>Use the following values when prompted to log in:</p><p><b>Username: {0}</b></p><p><b>Password: {3}</b></p></td></tr><tr><td colspan='3' align='left' style='font-size:14px;'><p>When you log into your account, you will be able to do the following:</p><ul style='line-height:24px;'><li>Create branch, staff account, menu, table,...</li><li>Set permission for each account group</li><li>Create, edit, delete the order</li><li>Change your password</li></ul></td></tr><tr><td colspan='3' align='left' style='font-size:14px;'><p>If you have any questions, please feel free to contact us at <a href='https://www.facebook.com/namto87' style='color:#025885'>Nam To</a> or by phone at <span style='color:#025885;'>+1 (657) 266 9014</span></p></td></tr><tr><td colspan='3' align='center' style='border-bottom:1px solid #e7e7e7;'> <a href='{1}{2}' style='background-image: linear-gradient(90deg, rgba(33,150,243,1) 50%, rgba(26,120,194,1) 100%); color:#fff; text-transform:uppercase;padding:10px 40px;text-decoration:none; border-radius:5px; margin-top:10px; margin-bottom:20px; display:inline-block;'> ACTIVE ACCOUNT </a></td></tr><tr><td colspan='3' align='center' style='font-size:14px;'><p>We hope to see you again soon.</p><p>Vangie House</p></td></tr><tr><td colspan='3' align='left'><p style='color:#898989; font-size:12px; margin-bottom:25px;'>This email was sent from a notification-only address that can not accept incoming email. Please do not reply to this message.</p></td></tr></tbody></table></td></tr><tr><td colspan='3' align='center' style='font-size:12px;'><p> +1 (657) 266 9014 &emsp;|&emsp; <a href='https://www.facebook.com/namto87' style='color:#000000;text-decoration:none;'>Nam To</a> &emsp;|&emsp; <a href='#' style='color:#000000;text-decoration:none;'>FAQ</a></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></div></body>", model.UserName, activeUrl, activeToken, accountPassword);
+                myMail.BodyEncoding = Encoding.UTF8;
+                // text or html
+                myMail.IsBodyHtml = true;
+
+                using (SmtpClient mySmtpClient = new SmtpClient("smtp.gmail.com"))
+                {
+                    // set smtp-client with basicAuthentication
+                    mySmtpClient.UseDefaultCredentials = false;
+                    NetworkCredential basicAuthenticationInfo = new
+                    NetworkCredential(user, password);
+                    mySmtpClient.Credentials = basicAuthenticationInfo;
+                    mySmtpClient.EnableSsl = true;
+                    await mySmtpClient.SendMailAsync(myMail);
+                };
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return result;
+        }
         public async Task<bool> SendEmailToActiveAccount(AdminAccount model, string user, string password, string activeUrl)
         {
             var result = false;
@@ -40,22 +97,22 @@ namespace Restaurant.Business
             var activeToken = _protector.Protect(JsonConvert.SerializeObject(tokenToActive));
 
             try
-            {                
+            {
                 // add from,to mailaddresses
-                MailAddress from = new MailAddress(user, "Cloud Restaurant System");
+                MailAddress from = new MailAddress(user, "Vangie House");
                 MailAddress to = new MailAddress(model.Email, model.FullName.Length > 0 ? model.FullName : model.UserName);
                 MailMessage myMail = new MailMessage(from, to);
 
                 // add ReplyTo
-                MailAddress replyto = new MailAddress("reply@example.com");
-                myMail.ReplyToList.Add(replyto);
+                //MailAddress replyto = new MailAddress("reply@example.com");
+                //myMail.ReplyToList.Add(replyto);
 
                 // set subject and encoding
                 myMail.Subject = "Active your account";
                 myMail.SubjectEncoding = Encoding.UTF8;
 
                 // set body-message and encoding
-                myMail.Body = string.Format("<body itemscope itemtype='http://schema.org/EmailMessage' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; width: 100% !important; height: 100%; line-height: 1.6em; background-color: #f6f6f6; margin: 0;' bgcolor='#f6f6f6'><table class='body-wrap' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; background-color: #f6f6f6; margin: 0;' bgcolor='#f6f6f6'><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0;' valign='top'></td><td class='container' width='600' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; display: block !important; max-width: 600px !important; clear: both !important; margin: 0 auto;' valign='top'><div class='content' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; max-width: 600px; display: block; margin: 0 auto; padding: 20px;'><table class='main' width='100%' cellpadding='0' cellspacing='0' itemprop='action' itemscope itemtype='http://schema.org/ConfirmAction' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; border-radius: 3px; background-color: #fff; margin: 0; border: 1px solid #e9e9e9;' bgcolor='#fff'><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td class='content-wrap' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 20px;' valign='top'><meta itemprop='name' content='Confirm Email' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'/><table width='100%' cellpadding='0' cellspacing='0' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td class='content-block' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;' valign='top'>Please active your account by clicking the link below.</td></tr><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td class='content-block' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;' valign='top'>Then, you can use your account with the usename <b>{0}</b> to login to your account</td></tr><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td class='content-block' itemprop='handler' itemscope itemtype='http://schema.org/HttpActionHandler' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;' valign='top'><a href='{1}{2}' class='btn-primary' itemprop='url' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #348eda; margin: 0; border-color: #348eda; border-style: solid; border-width: 10px 20px;'>Active Account</a></td></tr><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td class='content-block' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;' valign='top'>&mdash; Vangie House Application</td></tr></table></td></tr></table><div class='footer' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; clear: both; color: #999; margin: 0; padding: 20px;'><table width='100%' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><tr style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;'><td class='aligncenter content-block' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 12px; vertical-align: top; color: #999; text-align: center; margin: 0; padding: 0 0 20px;' align='center' valign='top'>Follow <a href='https://facebook.com/namto87' style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 12px; color: #999; text-decoration: underline; margin: 0;'>@NamTo</a> on Facebook.</td></tr></table></div></div></td><td style='font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0;' valign='top'></td></tr></table></body>", model.UserName, activeUrl, activeToken);
+                myMail.Body = string.Format("<body style='margin: 0; '><div style='background:#f7f9fa; display:flex; align-items:center;'><table width='100%' align='center' border='0'><tbody><tr><td align='center'><table border='0' align='center' width='650' style='text-align:center;border-spacing:0px;font-family:Arial; background:#fff;'><tbody><tr><td><table border='0' align='center' width='100%' style='border-spacing:0px; table-layout:fixed; border-collapse:collapse;'><tbody><tr style='border-bottom:1px solid #e7e7e7;'><td align='left' style='background:#fff; padding:20px 0 20px 50px;width:50%'></td><td align='right' style='width:50%; padding-right:50px;'><h3>Account Activation</h3></td></tr><tr style='border-bottom:1px solid #e7e7e7;'><td style='padding:0;' colspan='2'><table border='0' align='center' width='100%' style='border-spacing:0px; padding: 0 50px;'><tbody><tr><td colspan='3' align='center'><p style='color:#2196f3;font-size:24px;margin:0; margin-bottom:10px; margin-top:30px;'>Your register was successful</p></td></tr><tr><td colspan='3' align='left' style='font-size:14px; line-height:20px;'><p>Dear {0},</p><p>Welcome to <span style='color:#2196f3;'>Vangie House</span>!</p><p> Thanks for registering with us. To start using out application, you need to active your account first, just enter <a href='{1}{2}' style='color:#2196f3; text-decoration:none;'>Active</a>.</p><p>Use the following values when prompted to log in:</p><p><b>Username: {0}</b></p><p><b>Password: (Ask from the account creator)</b></p></td></tr><tr><td colspan='3' align='left' style='font-size:14px;'><p>When you log into your account, you will be able to do the following:</p><ul style='line-height:24px;'><li>Create branch, staff account, menu, table,...</li><li>Set permission for each account group</li><li>Create, edit, delete the order</li><li>Change your password</li></ul></td></tr><tr><td colspan='3' align='left' style='font-size:14px;'><p>If you have any questions, please feel free to contact us at <a href='https://www.facebook.com/namto87' style='color:#025885'>Nam To</a> or by phone at <span style='color:#025885;'>+1 (657) 266 9014</span></p></td></tr><tr><td colspan='3' align='center' style='border-bottom:1px solid #e7e7e7;'> <a href='{1}{2}' style='background-image: linear-gradient(90deg, rgba(33,150,243,1) 50%, rgba(26,120,194,1) 100%); color:#fff; text-transform:uppercase;padding:10px 40px;text-decoration:none; border-radius:5px; margin-top:10px; margin-bottom:20px; display:inline-block;'> ACTIVE ACCOUNT </a></td></tr><tr><td colspan='3' align='center' style='font-size:14px;'><p>We hope to see you again soon.</p><p>Vangie House</p></td></tr><tr><td colspan='3' align='left'><p style='color:#898989; font-size:12px; margin-bottom:25px;'>This email was sent from a notification-only address that can not accept incoming email. Please do not reply to this message.</p></td></tr></tbody></table></td></tr><tr><td colspan='3' align='center' style='font-size:12px;'><p> +1 (657) 266 9014 &emsp;|&emsp; <a href='https://www.facebook.com/namto87' style='color:#000000;text-decoration:none;'>Nam To</a> &emsp;|&emsp; <a href='#' style='color:#000000;text-decoration:none;'>FAQ</a></p></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></div></body>", model.UserName, activeUrl, activeToken);
                 myMail.BodyEncoding = Encoding.UTF8;
                 // text or html
                 myMail.IsBodyHtml = true;

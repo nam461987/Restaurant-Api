@@ -71,11 +71,11 @@ namespace Restaurant.Business
         {
             throw new System.NotImplementedException();
         }
-        public Task<IPaginatedList<RestaurantTableDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
+        public async Task<IPaginatedList<RestaurantTableDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize)
         {
             var RestaurantTableRepo = _restaurantTableRepository.Repo;
 
-            var result = (from restaurantTable in RestaurantTableRepo
+            var result = await (from restaurantTable in RestaurantTableRepo
                           join restaurant in _restaurantRepository.Repo on restaurantTable.RestaurantId equals restaurant.Id into rs
                           from restaurant in rs.DefaultIfEmpty()
                           join branch in _restaurantBranchRepository.Repo on restaurantTable.BranchId equals branch.Id into bs
