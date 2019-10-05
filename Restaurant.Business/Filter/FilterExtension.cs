@@ -10,13 +10,13 @@ namespace Restaurant.Business.Filter
     public static class FilterExtension
     {
         public static IQueryable<T> ToFilterByRole<T>(this IQueryable<T> source, Func<T, int> getRestaurantIdProperty,
-            Func<T, int> getBranchIdProperty, int restaurantId, int branchId)
+            Func<T, int> getBranchIdProperty, int? restaurantId, int? branchId)
         {
-            if (restaurantId == 0 && branchId == 0)
+            if ((restaurantId == 0 && branchId == 0) || (restaurantId == null && branchId == null))
             {
                 return source;
             }
-            else if (restaurantId > 0 && branchId == 0)
+            else if ((restaurantId > 0 && branchId == 0) || (restaurantId > 0 && branchId == null))
             {
                 source = source.Where(c => getRestaurantIdProperty(c) == restaurantId);
             }
