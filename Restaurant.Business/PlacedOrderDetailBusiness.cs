@@ -8,6 +8,7 @@ using Restaurant.Common.Dtos.PlacedOrderDetail;
 using Restaurant.Common.Enums;
 using Restaurant.Entities.Models;
 using Restaurant.Repository.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +39,14 @@ namespace Restaurant.Business
         }
         public async Task<PlacedOrderDetail> Add(PlacedOrderDetail model)
         {
+            //var order = new PlacedOrder
+            //{
+            //    CreatedDate = DateTime.Now
+            //};
+
+            //order.PlacedOrderDetail.Add(model);
+
+
             var entity = _placedOrderDetailRepository.Add(model);
 
             var totalDetailPrice = await GetTotalDetailPriceByOrderId(entity.RestaurantId, entity.BranchId, entity.PlacedOrderId);
