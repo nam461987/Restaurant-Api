@@ -1,5 +1,6 @@
 /Restaurant.API.sln
 /.vs
+/.vscode
 /forwardzone
 /uploads
 /Restaurant.API/Program.cs
@@ -24,3 +25,4 @@
 /Restaurant.Business/AdminAccountBusiness.cs
 /Restaurant.Business/AdminGroupBusiness.cs
 /Restaurant.Business/AdminGroupPermissionBusiness.cs
+*.user
