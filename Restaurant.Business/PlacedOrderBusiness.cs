@@ -27,6 +27,8 @@ namespace Restaurant.Business
         private readonly IAdminAccountRepository _adminAccountRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IOrderProcessRepository _orderProcessRepository;
+        private readonly IUnitOfWork _unitOfWork;
+
         public PlacedOrderBusiness(IMapper mapper,
             IPlacedOrderRepository placedOrderRepository,
             IRestaurantRepository restaurantRepository,
@@ -35,7 +37,8 @@ namespace Restaurant.Business
             IRestaurantTableRepository restaurantTableRepository,
             IAdminAccountRepository adminAccountRepository,
             ICustomerRepository customerRepository,
-            IOrderProcessRepository orderProcessRepository)
+            IOrderProcessRepository orderProcessRepository
+            , IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _placedOrderRepository = placedOrderRepository;
@@ -46,6 +49,7 @@ namespace Restaurant.Business
             _adminAccountRepository = adminAccountRepository;
             _customerRepository = customerRepository;
             _orderProcessRepository = orderProcessRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<PlacedOrder> Add(PlacedOrder model)
         {
@@ -61,10 +65,10 @@ namespace Restaurant.Business
                 c => c.CreatedDate >= startDateTime && c.CreatedDate <= endDateTime).CountAsync();
 
             var entity = _placedOrderRepository.Add(model);
-            await _placedOrderRepository.SaveChangeAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             entity.Code = $"OD-{dateStr}{resStr}{braStr}{(totalOrderToday + 1):D5}";
-            await _placedOrderRepository.SaveChangeAsync();
+            await _unitOfWork.SaveChangesAsync();
             model.Id = entity.Id;
             model.Code = entity.Code;
 

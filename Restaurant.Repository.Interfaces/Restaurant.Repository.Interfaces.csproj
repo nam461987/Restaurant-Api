@@ -10,4 +10,10 @@
     <ProjectReference Include="..\Restaurant.Entities\Restaurant.Entities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Menus\" />
+  </ItemGroup>
 </Project>
