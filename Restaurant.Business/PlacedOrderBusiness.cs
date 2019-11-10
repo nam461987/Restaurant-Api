@@ -9,6 +9,7 @@ using Restaurant.Common.Dtos.PlacedOrder;
 using Restaurant.Common.Enums;
 using Restaurant.Entities.Models;
 using Restaurant.Repository.Interfaces;
+using Restaurant.Repository.Interfaces.Orders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
