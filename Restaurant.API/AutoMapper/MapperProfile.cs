@@ -3,6 +3,7 @@ using Restaurant.Common.Dtos.AdminAccount;
 using Restaurant.Common.Dtos.Ingredient;
 using Restaurant.Common.Dtos.Menu;
 using Restaurant.Common.Dtos.MenuCategory;
+using Restaurant.Common.Dtos.MenuDefinition;
 using Restaurant.Common.Dtos.MenuPrice;
 using Restaurant.Common.Dtos.MenuSize;
 using Restaurant.Common.Dtos.MenuUnit;
@@ -13,6 +14,7 @@ using Restaurant.Common.Dtos.PlacedOrderDetail;
 using Restaurant.Common.Dtos.Restaurant;
 using Restaurant.Common.Dtos.RestaurantBranch;
 using Restaurant.Common.Dtos.RestaurantTable;
+using Restaurant.Common.Dtos.Tax;
 using Restaurant.Entities.Models;
 
 namespace Restaurant.API.AutoMapper
@@ -62,6 +64,12 @@ namespace Restaurant.API.AutoMapper
 
             CreateMap<PlacedOrderDetail, PlacedOrderDetailDto>();
             CreateMap<PlacedOrderDetailDto, PlacedOrderDetail>();
+
+            CreateMap<MenuDefinition, MenuDefinitionDto>();
+            CreateMap<MenuDefinitionDto, MenuDefinition>();
+
+            CreateMap<Tax, TaxDto>();
+            CreateMap<TaxDto, Tax>();
         }
     }
 }

@@ -125,7 +125,7 @@ namespace Restaurant.Business
                                 from branch in bs.DefaultIfEmpty()
                                 join process in _orderProcessRepository.Repo on placedOrderProcessStatus.OrderProcessId equals process.Id into ps
                                 from process in ps.DefaultIfEmpty()
-                                join account in _adminAccountRepository.Repo on placedOrderProcessStatus.OrderProcessId equals account.Id into aas
+                                join account in _adminAccountRepository.Repo on placedOrderProcessStatus.CreatedStaffId equals account.Id into aas
                                 from account in aas.DefaultIfEmpty()
                                 select new PlacedOrderProcessStatusDto
                                 {

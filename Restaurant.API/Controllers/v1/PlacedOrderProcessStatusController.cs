@@ -73,8 +73,8 @@ namespace Restaurant.API.Controllers.v1
         //{
         //    return await _placedOrderProcessStatusBusiness.SetActive(id, Status);
         //}
-        [HttpGet]
-        [Route("getbyorderid")]
+        [HttpGet("getbyorderid")]
+        //[Route("getbyorderid")]
         public async Task<List<PlacedOrderProcessStatusDto>> GetByOrderId(int orderId)
         {
             return await _placedOrderProcessStatusBusiness.GetByOrderId(_authenticationDto.RestaurantId, _authenticationDto.BranchId, orderId);

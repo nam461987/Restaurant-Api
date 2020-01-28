@@ -8,7 +8,7 @@ namespace Restaurant.Business.Interfaces
 {
     public interface IPlacedOrderBusiness
     {
-        Task<PlacedOrder> Add(PlacedOrder model);
+        Task<PlacedOrderDto> Add(PlacedOrder model);
         Task<bool> Update(PlacedOrder model);
         Task<bool> SetActive(int id, int Active);
         Task<IPaginatedList<PlacedOrderDto>> GetAll(int restaurantId, int branchId, int pageIndex, int pageSize);
@@ -16,6 +16,8 @@ namespace Restaurant.Business.Interfaces
         Task<bool> UpdatePriceToPlacedOrder(PlacedOrder model);
         Task<bool> UpdateOrderProcess(PlacedOrder model);
         Task<List<PlacedOrderDto>> GetWaitingOrder(int restaurantId, int branchId);
-
+        Task<IPaginatedList<PlacedOrderDto>> GetAllExceptCanceledOrder(int restaurantId, int branchId, int pageIndex, int pageSize);
+        Task<IPaginatedList<PlacedOrderDto>> GetCanceledOrder(int restaurantId, int branchId, int pageIndex, int pageSize);
+        Task<bool> SetFinishOrder(PlacedOrder model, Checkout checkout);
     }
 }

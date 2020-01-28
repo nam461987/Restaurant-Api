@@ -80,8 +80,8 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /menucategory/getall
         [ClaimRequirement("", "quick_order_page")]
-        [Route("getall")]
-        [HttpGet]
+        //[Route("getall")]
+        [HttpGet("getall")]
         public async Task<List<MenuCategory>> GetAllNotPaginate()
         {
             return await _menuCategoryBusiness.GetAllNotPaginate(_authenticationDto.RestaurantId, _authenticationDto.BranchId);

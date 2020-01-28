@@ -14,6 +14,7 @@ namespace Restaurant.Business.Interfaces
         Task<List<OptionModel>> GetBranchOptions(int restaurantId, int branchId);
         Task<List<OptionModel>> GetCategoryOptions(int restaurantId, int branchId);
         Task<List<OptionModel>> GetUnitOptions(int restaurantId, int branchId);
+        Task<List<OptionModel>> GetMenuOptions(int restaurantId, int branchId);
         Task<List<OptionModel>> GetSizeOptions(int restaurantId, int branchId);
         Task<List<OptionModel>> GetStateOptions();
         Task<List<OptionModel>> GetCityOptions(int stateId);
@@ -22,5 +23,8 @@ namespace Restaurant.Business.Interfaces
         Task<List<OptionModel>> GetTableOptions(int restaurantId, int branchId);
         Task<List<OptionModel>> GetOrderProcessOptions();
         Task<List<OptionModel>> GetAccountOptions(int restaurantId, int branchId);
+        Task<List<OptionModel>> GetIngredientOptions(int restaurantId, int branchId, int id);
+        Task<List<OptionModel>> GetIngredientWithUnitOptions(int restaurantId, int branchId, int id);
+        Task<List<OptionModel>> GetTaxOptions(int restaurantId, int branchId, int id);
     }
 }

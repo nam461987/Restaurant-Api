@@ -4,6 +4,7 @@ using Restaurant.Business.Filter;
 using Restaurant.Business.Interfaces;
 using Restaurant.Common.Enums;
 using Restaurant.Common.Models;
+using Restaurant.Entities.Models;
 using Restaurant.Repository.Interfaces;
 using Restaurant.Repository.Interfaces.Menus;
 using Restaurant.Repository.Interfaces.Orders;
@@ -30,6 +31,10 @@ namespace Restaurant.Business
         private readonly IRestaurantTableRepository _restaurantTableRepository;
         private readonly IAdminAccountRepository _adminAccountRepository;
         private readonly IOrderProcessRepository _orderProcessRepository;
+        private readonly IIngredientRepository _ingredientRepository;
+        private readonly IMenuDefinitionRepository _menuDefinitionRepository;
+        private readonly IMenuRepository _menuRepository;
+        private readonly ITaxRepository _taxRepository;
         public OptionBusiness(IMapper mapper,
             IAdminGroupRepository adminGroupRepository,
             IRestaurantRepository restaurantRepository,
@@ -43,7 +48,11 @@ namespace Restaurant.Business
             IOrderChannelRepository orderChannelRepository,
             IRestaurantTableRepository restaurantTableRepository,
             IAdminAccountRepository adminAccountRepository,
-            IOrderProcessRepository orderProcessRepository)
+            IOrderProcessRepository orderProcessRepository,
+            IIngredientRepository ingredientRepository,
+            IMenuDefinitionRepository menuDefinitionRepository,
+            IMenuRepository menuRepository,
+            ITaxRepository taxRepository)
         {
             _mapper = mapper;
             _adminGroupRepository = adminGroupRepository;
@@ -59,6 +68,10 @@ namespace Restaurant.Business
             _restaurantTableRepository = restaurantTableRepository;
             _adminAccountRepository = adminAccountRepository;
             _orderProcessRepository = orderProcessRepository;
+            _ingredientRepository = ingredientRepository;
+            _menuDefinitionRepository = menuDefinitionRepository;
+            _menuRepository = menuRepository;
+            _taxRepository = taxRepository;
         }
         public async Task<List<OptionModel>> GetAdminGroupOptions()
         {
@@ -173,6 +186,26 @@ namespace Restaurant.Business
 
             return options;
         }
+        public async Task<List<OptionModel>> GetMenuOptions(int restaurantId, int branchId)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _menuRepository.Repo.Where(c => c.RestaurantId == restaurantId &&
+                c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Id)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
         public async Task<List<OptionModel>> GetSizeOptions(int restaurantId, int branchId)
         {
             var options = new List<OptionModel>();
@@ -211,14 +244,14 @@ namespace Restaurant.Business
             }
 
             return options;
-        }        
+        }
         public async Task<List<OptionModel>> GetCityOptions(int stateId)
         {
             var options = new List<OptionModel>();
 
             var state = await _stateRepository.Repo.Where(c => c.Id == stateId).FirstOrDefaultAsync();
 
-            if(state!= null)
+            if (state != null)
             {
                 var item = await _stateCityRepository.Repo.Where(c => c.StateCode == state.Code)
                 .OrderBy(c => c.Name)
@@ -235,7 +268,7 @@ namespace Restaurant.Business
             }
 
             return options;
-        }        
+        }
         public async Task<List<OptionModel>> GetCustomerOptions(int restaurantId, int branchId)
         {
             var options = new List<OptionModel>();
@@ -334,6 +367,83 @@ namespace Restaurant.Business
                 options.AddRange(item.Select(c => new OptionModel
                 {
                     DisplayText = Convert.ToString(c.UserName),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetIngredientOptions(int restaurantId, int branchId, int id)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _ingredientRepository.Repo
+                .ToFilterByRole(f => f.RestaurantId, f => f.BranchId.GetValueOrDefault(), restaurantId, branchId)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetIngredientWithUnitOptions(int restaurantId, int branchId, int id)
+        {
+            var options = new List<OptionModel>();
+
+            var IngredientRepo = _ingredientRepository.Repo;
+
+            var item = await (from ingredient in IngredientRepo
+                              join unit in _menuUnitRepository.Repo on ingredient.UnitId equals unit.Id into us
+                              from unit in us.DefaultIfEmpty()
+                              select new Ingredient
+                              {
+                                  Id = ingredient.Id,
+                                  RestaurantId = ingredient.RestaurantId,
+                                  BranchId = ingredient.BranchId,
+                                  Name = ingredient.Name + " ( " + unit.Name + " )",
+                                  UnitId = ingredient.UnitId,
+                                  Description = ingredient.Description,
+                                  Status = ingredient.Status
+                              })
+                            .ToFilterByRole(f => f.RestaurantId, f => f.BranchId.GetValueOrDefault(), restaurantId, branchId)
+                            .Where(c => c.Status == (int)EStatus.Using)
+                            .OrderBy(c => c.Name)
+                            .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name),
+                    Value = Convert.ToInt32(c.Id)
+                }).ToList());
+            }
+
+            return options;
+        }
+        public async Task<List<OptionModel>> GetTaxOptions(int restaurantId, int branchId, int id)
+        {
+            var options = new List<OptionModel>();
+
+            var item = await _taxRepository.Repo
+                .ToFilterByRole(f => f.RestaurantId, null, restaurantId, 0)
+                .Where(c => c.Status == (int)EStatus.Using)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            if (item != null)
+            {
+                options.AddRange(item.Select(c => new OptionModel
+                {
+                    DisplayText = Convert.ToString(c.Name + "_" + c.Percentage),
                     Value = Convert.ToInt32(c.Id)
                 }).ToList());
             }

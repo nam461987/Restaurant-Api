@@ -16,6 +16,7 @@ using AutoMapper;
 
 namespace Restaurant.API.Controllers.v1
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("api/v1/[controller]")]
     [BearerAuthorize]
     [ApiController]
@@ -144,23 +145,23 @@ namespace Restaurant.API.Controllers.v1
             return result;
         }
         // GET: /adminaccount/checkusername
-        [Route("checkusername/{username}")]
-        [HttpGet]
+        //[Route("checkusername/{username}")]
+        [HttpGet("checkusername/{username}")]
         public async Task<bool> CheckUserNameExist(string username)
         {
             return await _adminAccountBusiness.CheckUserNameExist(username);
         }
         // GET: /adminaccount/checkemail
-        [Route("checkemail/{email}")]
-        [HttpGet]
+        //[Route("checkemail/{email}")]
+        [HttpGet("checkemail/{email}")]
         public async Task<bool> CheckEmailExist(string email)
         {
             return await _adminAccountBusiness.CheckEmailExist(email);
         }
         // GET: /adminaccount/resendactiveaccountemail
         [ClaimRequirement("", "admin_user_resendactiveemail")]
-        [Route("resendactiveaccountemail")]
-        [HttpGet]
+        //[Route("resendactiveaccountemail")]
+        [HttpGet("resendactiveaccountemail")]
         public async Task<bool> ResendActiveAccountEmail(int id)
         {
             string user = _appSetting.GetValue<string>("AppSettings:EmailAuthentication:UserName");

@@ -46,8 +46,8 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /menuprice/5
         [ClaimRequirement("", "category_menu_price_update")]
-        [Route("getpricebymenu")]
-        [HttpGet]
+        //[Route("getpricebymenu")]
+        [HttpGet("getpricebymenu")]
         public async Task<IPaginatedList<MenuPriceDto>> GetPriceByMenu(int restaurantId, int branchId, int menuId, int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
         {
             return await _menuPriceBusiness.GetByMenuId(restaurantId, branchId, pageIndex, pageSize, menuId);
@@ -104,8 +104,8 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /menuprice
         [ClaimRequirement("", "quick_order_page")]
-        [Route("getall")]
-        [HttpGet]
+        //[Route("getall")]
+        [HttpGet("getall")]
         public async Task<List<MenuPriceDto>> GetAllNotPaginate(int menuId, int sizeId)
         {
             return await _menuPriceBusiness.GetAllNotPaginate(_authenticationDto.RestaurantId, _authenticationDto.BranchId);

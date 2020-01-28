@@ -1,5 +1,4 @@
 ﻿using Restaurant.Entities.Models;
-using Restaurant.Repository.Interfaces;
 using Restaurant.Repository.Interfaces.Orders;
 
 namespace Restaurant.Repository

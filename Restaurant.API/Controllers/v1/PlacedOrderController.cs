@@ -51,9 +51,9 @@ namespace Restaurant.API.Controllers.v1
         // POST: /PlacedOrder
         [ClaimRequirement("", "placed_order_create")]
         [HttpPost]
-        public async Task<PlacedOrder> Post(PlacedOrder model)
+        public async Task<PlacedOrderDto> Post(PlacedOrder model)
         {
-            PlacedOrder result = null;
+            PlacedOrderDto result = null;
 
             //if current user is Restaurant Admin, don't let them create order
             // because when update price will be wrong
@@ -79,6 +79,7 @@ namespace Restaurant.API.Controllers.v1
                 }
                 model.RestaurantId = _authenticationDto.RestaurantId;
                 model.BranchId = _authenticationDto.BranchId;
+                model.OutputTypeId = (int)EOutputType.Order;
                 model.OrderTime = DateTime.Now;
                 model.CreatedDate = DateTime.Now;
                 model.CreatedStaffId = _authenticationDto.UserId;
@@ -128,16 +129,16 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /PlacedOrder
         [ClaimRequirement("", "waiting_order_list")]
-        [Route("getwaitingorder")]
-        [HttpGet]
+        //[Route("getwaitingorder")]
+        [HttpGet("getwaitingorder")]
         public async Task<List<PlacedOrderDto>> GetWaitingOrder()
         {
             return await _placedOrderBusiness.GetWaitingOrder(_authenticationDto.RestaurantId, _authenticationDto.BranchId);
         }
         // GET: /PlacedOrder
         [ClaimRequirement("", "waiting_order_list")]
-        [Route("setcompleteorder")]
-        [HttpPut]
+        //[Route("setcompleteorder")]
+        [HttpPut("setcompleteorder")]
         public async Task<bool> SetCompleteOrder(PlacedOrder model)
         {
             var result = false;
@@ -171,8 +172,8 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /PlacedOrder
         [ClaimRequirement("", "placed_order_update")]
-        [Route("setordermoreorder")]
-        [HttpPut]
+        //[Route("setordermoreorder")]
+        [HttpPut("setordermoreorder")]
         public async Task<bool> SetOrderMoreOrder(int id)
         {
             var result = false;
@@ -203,8 +204,8 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /PlacedOrder
         [ClaimRequirement("", "placed_order_update")]
-        [Route("setcancelorder")]
-        [HttpPut]
+        //[Route("setcancelorder")]
+        [HttpPut("setcancelorder")]
         public async Task<bool> SetCancelOrder(int id)
         {
             var result = false;
@@ -232,6 +233,31 @@ namespace Restaurant.API.Controllers.v1
                 }
             }
 
+            return result;
+        }
+        [ClaimRequirement("", "placed_order_list")]
+        [HttpGet("getallexceptcanceledorder")]
+        public async Task<IPaginatedList<PlacedOrderDto>> GetAllExceptCanceledOrder(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        {
+            return await _placedOrderBusiness.GetAllExceptCanceledOrder(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
+        }
+        [ClaimRequirement("", "placed_order_list")]
+        [HttpGet("getcanceledorder")]
+        public async Task<IPaginatedList<PlacedOrderDto>> GetCanceledOrder(int pageIndex = Constant.PAGE_INDEX_DEFAULT, int pageSize = Constant.PAGE_SIZE_DEFAULT)
+        {
+            return await _placedOrderBusiness.GetCanceledOrder(_authenticationDto.RestaurantId, _authenticationDto.BranchId, pageIndex, pageSize);
+        }
+        
+        [ClaimRequirement("", "placed_order_update")]
+        [HttpPut("setfinishorder")]
+        public async Task<bool> SetFinishOrder(Checkout checkout)
+        {
+            var result = false;
+            if (ModelState.IsValid)
+            {
+                checkout.PlacedOrder.UpdatedStaffId = _authenticationDto.UserId;
+                result = await _placedOrderBusiness.SetFinishOrder(checkout.PlacedOrder, checkout);
+            }
             return result;
         }
     }

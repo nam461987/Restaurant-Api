@@ -171,15 +171,16 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /PlacedOrder
         [ClaimRequirement("", "waiting_order_list")]
-        [Route("getwaitingorderdetail")]
-        [HttpGet]
+        //[Route("getwaitingorderdetail")]
+        [HttpGet("getwaitingorderdetail")]
         public async Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetail()
         {
             return await _placedOrderDetailBusiness.GetWaitingOrderDetail(_authenticationDto.RestaurantId, _authenticationDto.BranchId);
         }
         // PUT: /PlacedOrderDetail/5
         [ClaimRequirement("", "placed_order_detail_update")]
-        [Route("setfinishorderdetail")]
+        //[Route("setfinishorderdetail")]
+        [HttpPut("setfinishorderdetail")]
         public async Task<PlacedOrderDetail> SetFinishOrderDetail(int id, int isFinish)
         {
             //if current user is Restaurant Admin, don't let them update order detail
@@ -218,8 +219,8 @@ namespace Restaurant.API.Controllers.v1
         }
         // GET: /PlacedOrder
         [ClaimRequirement("", "placed_order_detail_list")]
-        [Route("getorderdetailbyorderid")]
-        [HttpGet]
+        //[Route("getorderdetailbyorderid")]
+        [HttpGet("getorderdetailbyorderid")]
         public async Task<List<PlacedOrderDetailDto>> GetWaitingOrderDetailByOrderId(int orderId)
         {
             return await _placedOrderDetailBusiness.GetWaitingOrderDetailByOrderId(_authenticationDto.RestaurantId, _authenticationDto.BranchId, orderId);

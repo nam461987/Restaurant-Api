@@ -30,8 +30,8 @@ namespace Restaurant.API.Controllers.v1
 
         // GET: /grouppermission/getpermission
         [ClaimRequirement("", "admin_group_permission_list")]
-        [Route("getpermission")]
-        [HttpGet]
+        //[Route("getpermission")]
+        [HttpGet("getpermission")]
         public async Task<List<AdminGroupPermission_View00>> Get(int groupId, string module)
         {
             //Because we just get user permissions by restaurant,
@@ -41,14 +41,14 @@ namespace Restaurant.API.Controllers.v1
                 0, _authenticationDto.TypeId, groupId, module);
         }
         // GET: /grouppermission/getgroup
-        [Route("getgroup")]
-        [HttpGet]
+        //[Route("getgroup")]
+        [HttpGet("getgroup")]
         public async Task<List<AdminGroup>> GetGroup()
         {
             return await _groupPermissionBusiness.GetGroup(_authenticationDto.RestaurantId, _authenticationDto.BranchId,_authenticationDto.TypeId);
         }
-        [Route("getmodule")]
-        [HttpGet]
+        //[Route("getmodule")]
+        [HttpGet("getmodule")]
         public async Task<List<Option2Model>> GetModule()
         {
             return await _groupPermissionBusiness.GetModule();
