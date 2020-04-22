@@ -11,5 +11,6 @@ namespace Restaurant.Business.Interfaces
     {
         Task<bool> SendEmailToActiveAccount(AdminAccount model, string user, string password, string activeUrl);
         Task<bool> SendEmailToRestaurantAdmin(AdminAccount model, string user, string password, string activeUrl); 
+        Task<bool> SendEmailToOwnerAfterRegister(Registration model, string user, string password); 
     }
 }

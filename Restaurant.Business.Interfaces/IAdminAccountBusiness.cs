@@ -20,6 +20,7 @@ namespace Restaurant.Business.Interfaces
 
         Task<int> ActiveAccount(string token);
         Task<LoginResponse> Login(LoginDto model);
+        Task<LoginResponse> LoginWithToken(string token);
         AuthenticationDto CheckAuthentication(string accessToken);
     }
 }

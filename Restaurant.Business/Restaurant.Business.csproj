@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.1" />
+    <PackageReference Include="Stripe.net" Version="34.20.0" />
     <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />
   </ItemGroup>
 

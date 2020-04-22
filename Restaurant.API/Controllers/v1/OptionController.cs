@@ -10,6 +10,7 @@ using Restaurant.Business.Interfaces;
 using Restaurant.API.Extensions;
 using Restaurant.Common.Models;
 using Restaurant.Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Restaurant.API.Controllers.v1
 {

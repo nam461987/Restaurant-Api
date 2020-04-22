@@ -26,9 +26,14 @@ namespace Restaurant.API.Controllers.v1
         [HttpPost]
         public async Task<LoginResponse> Login(LoginDto model)
         {
-            _logger.LogWarning("Tes t sdkfjdkfjf");
             model.Password = WebsiteExtension.EncryptPassword(model.Password);
             return await _adminAccountBusiness.Login(model);
+        }
+
+        [HttpGet]
+        public async Task<LoginResponse> LoginWithToken(string token)
+        {
+            return await _adminAccountBusiness.LoginWithToken(token);
         }
 
         [HttpGet]
